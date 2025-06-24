@@ -490,11 +490,11 @@ export default function Home() {
                   backgroundColor: "var(--background1)",
                 }} onClick={() => {
                   if (inputRef.current) {
-                    inputRef.current.value = "How can I use WebTUI to build a responsive terminal UI?";
+                    inputRef.current.value = "What are the best practices for creating accessible web applications?";
                     inputRef.current.focus();
                   }
                 }}>
-                  $ How can I use WebTUI to build a responsive terminal UI?
+                  $ What are the best practices for creating accessible web applications?
                 </div>
                 
                 <div box-="square" style={{ 
@@ -503,11 +503,11 @@ export default function Home() {
                   backgroundColor: "var(--background1)",
                 }} onClick={() => {
                   if (inputRef.current) {
-                    inputRef.current.value = "Show an example of integrating WebTUI with an AI chat API.";
+                    inputRef.current.value = "Explain the differences between REST and GraphQL APIs.";
                     inputRef.current.focus();
                   }
                 }}>
-                  $ Show an example of integrating WebTUI with an AI chat API.
+                  $ Explain the differences between REST and GraphQL APIs.
                 </div>
                 
                 <div box-="square" style={{ 
@@ -516,11 +516,11 @@ export default function Home() {
                   backgroundColor: "var(--background1)",
                 }} onClick={() => {
                   if (inputRef.current) {
-                    inputRef.current.value = "What are best practices for mobile-friendly terminal UIs?";
+                    inputRef.current.value = "What are some strategies for optimizing website performance?";
                     inputRef.current.focus();
                   }
                 }}>
-                  $ What are best practices for mobile-friendly terminal UIs?
+                  $ What are some strategies for optimizing website performance?
                 </div>
               </div>
             </div>
