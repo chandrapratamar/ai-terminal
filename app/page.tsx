@@ -6,6 +6,7 @@ import { TerminalMessage } from "@/components/terminal-message"
 import { ChatSettings } from "@/components/chat-settings"
 import { useChat } from "@ai-sdk/react"
 import '../styles/chat.css'
+import { useTheme } from "../components/theme-provider"
 
 // Define interfaces
 interface Message {
@@ -51,6 +52,8 @@ export default function Home() {
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
+
+  const { theme } = useTheme()
 
   // Model options by provider
   const modelOptions: Record<string, string[]> = {
@@ -307,7 +310,7 @@ export default function Home() {
 
   // Terminal prompt style
   const promptStyle = {
-    color: "var(--background4)",
+    color: "var(--foreground2)",
     userSelect: "none" as const,
     whiteSpace: "nowrap" as const,
     display: "flex",
@@ -324,6 +327,7 @@ export default function Home() {
     height: "100%",
     padding: "2rem",
     textAlign: "center" as const,
+    color: "var(--foreground2)",
   }
 
   // Quick commands style
@@ -434,7 +438,7 @@ export default function Home() {
                 {settings.provider}
               </span>
               <span>|</span>
-              <span>{settings.model}</span>
+                <span>{settings.model}</span>
             </div>
           </div>
         </div>
@@ -488,6 +492,7 @@ export default function Home() {
                   padding: "0.75rem", 
                   cursor: "pointer",
                   backgroundColor: "var(--background1)",
+                  border: "1px solid var(--background2)",
                 }} onClick={() => {
                   if (inputRef.current) {
                     inputRef.current.value = "What are the best practices for creating accessible web applications?";
@@ -501,6 +506,7 @@ export default function Home() {
                   padding: "0.75rem", 
                   cursor: "pointer",
                   backgroundColor: "var(--background1)",
+                  border: "1px solid var(--background2)",
                 }} onClick={() => {
                   if (inputRef.current) {
                     inputRef.current.value = "Explain the differences between REST and GraphQL APIs.";
@@ -514,6 +520,7 @@ export default function Home() {
                   padding: "0.75rem", 
                   cursor: "pointer",
                   backgroundColor: "var(--background1)",
+                  border: "1px solid var(--background2)",
                 }} onClick={() => {
                   if (inputRef.current) {
                     inputRef.current.value = "What are some strategies for optimizing website performance?";

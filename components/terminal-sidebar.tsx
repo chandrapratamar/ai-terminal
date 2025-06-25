@@ -108,7 +108,7 @@ export function TerminalSidebar({
 
       <div style={contentStyle}>
         {sessions.length === 0 ? (
-          <div style={{ ...emptyStateStyle, fontFamily: "monospace", whiteSpace: "pre", color: "var(--blue)" }}>
+          <div style={{ ...emptyStateStyle, fontFamily: "monospace", whiteSpace: "pre" }}>
 {`
 ┌────────────────────┐
 │ No active sessions │
@@ -131,13 +131,13 @@ export function TerminalSidebar({
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
-                borderLeft: currentSessionId === session.id ? "2px solid var(--blue)" : "none",
+                borderLeft: currentSessionId === session.id ? "2px solid var(--foreground1)" : "none",
               }}
               onClick={() => handleLoadSession(session.id)}
             >
               <div style={{ overflow: "hidden" }}>
                 <div style={{ fontSize: "12px", fontWeight: "bold", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                  <span is-="badge" variant-={currentSessionId === session.id ? "blue" : "background2"}>{session.title}</span>
+                  <span is-="badge" variant-={currentSessionId === session.id ? "foreground1" : "background2"}>{session.title}</span>
                 </div>
                 <div style={{ fontSize: "10px", color: "var(--foreground2)", display: "flex", gap: "0.5rem" }}>
                   <span>{session.messages.length} msgs</span>
@@ -146,7 +146,7 @@ export function TerminalSidebar({
               </div>
               <button
                 is-="button"
-                variant-="red"
+                variant-="foreground2"
                 size-="small"
                 onClick={(e) => {
                   e.stopPropagation()

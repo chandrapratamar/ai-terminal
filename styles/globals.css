@@ -1,76 +1,33 @@
-/* Import the complete WebTUI CSS library */
-@import '@webtui/css';
+@layer base, utils, components;
 
-/* Custom Terminal Theme Variables */
+@import '@webtui/css/base.css';
+@import '@webtui/css/components/button.css';
+@import '@webtui/css/components/typography.css';
+@import '@webtui/css/components/badge.css';
+@import '@webtui/css/components/input.css';
+@import '@webtui/css/components/textarea.css';
+@import '@webtui/css/components/popover.css';
+@import '@webtui/css/components/separator.css';
+@import '@webtui/css/components/pre.css';
+@import '@webtui/css/components/dialog.css';
+
+@import '@webtui/theme-catppuccin';
+@import '@webtui/theme-gruvbox';
+@import '@webtui/theme-nord';
+
 :root {
-  /* Catppuccin Mocha Theme Variables */
-  --rosewater: #f5e0dc;
-  --flamingo: #f2cdcd;
-  --pink: #f5c2e7;
-  --mauve: #cba6f7;
-  --red: #f38ba8;
-  --maroon: #eba0ac;
-  --peach: #fab387;
-  --yellow: #f9e2af;
-  --green: #a6e3a1;
-  --teal: #94e2d5;
-  --sky: #89dceb;
-  --sapphire: #74c7ec;
-  --blue: #89b4fa;
-  --lavender: #b4befe;
-  --text: #cdd6f4;
-  --subtext1: #bac2de;
-  --subtext0: #a6adc8;
-  --overlay2: #9399b2;
-  --overlay1: #7f849c;
-  --overlay0: #6c7086;
-  --surface2: #585b70;
-  --surface1: #45475a;
-  --surface0: #313244;
-  --base: #1e1e2e;
-  --mantle: #181825;
-  --crust: #11111b;
-
-  /* WebTUI Terminal Color Mapping */
-  --background0: var(--base);
-  --background1: var(--surface0);
-  --background2: var(--surface1);
-  --background3: var(--surface2);
-  --foreground0: var(--text);
-  --foreground1: var(--subtext1);
-  --foreground2: var(--subtext0);
-  --foreground3: var(--overlay2);
-
-  /* Terminal Typography */
-  --font-family: "JetBrains Mono", "Fira Code", "Cascadia Code", "SF Mono", Monaco, "Inconsolata", "Roboto Mono",
-    "Source Code Pro", "Courier New", monospace;
+  --font-family: "JetBrains Mono", monospace;
   --font-size: 13px;
   --line-height: 1.4;
-
-  /* Terminal Box Characters */
-  --box-border-color: var(--surface0);
-  --box-border-radius: 0;
-  --box-padding: 1rem;
 }
 
-* {
-  box-sizing: border-box;
-}
-
-html {
-  font-family: var(--font-family);
-  font-size: var(--font-size);
-  line-height: var(--line-height);
-}
-
-body {
-  margin: 0;
-  padding: 0;
-  background-color: var(--background0);
-  color: var(--foreground0);
+body, html {
+  width: 100vw;
   height: 100vh;
-  overflow: hidden;
-  cursor: text;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 /* Terminal Scrollbar */

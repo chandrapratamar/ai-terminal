@@ -2,7 +2,20 @@
 
 import { createContext, useContext, useEffect, useState } from "react";
 
-type Theme = "light" | "dark";
+type Theme =
+  | "light"
+  | "dark"
+  | "catppuccin-mocha"
+  | "catppuccin-macchiato"
+  | "catppuccin-frappe"
+  | "catppuccin-latte"
+  | "gruvbox-dark-hard"
+  | "gruvbox-dark-medium"
+  | "gruvbox-dark-soft"
+  | "gruvbox-light-hard"
+  | "gruvbox-light-medium"
+  | "gruvbox-light-soft"
+  | "nord";
 
 type ThemeProviderProps = {
   children: React.ReactNode;
@@ -22,16 +35,18 @@ export function ThemeProvider({
   children,
   defaultTheme = "dark",
 }: ThemeProviderProps) {
-  const [theme, setTheme] = useState<Theme>(defaultTheme);
+  const [theme, setTheme] = useState<Theme>(() => {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("webtui-theme");
+      if (stored) return stored as Theme;
+    }
+    return defaultTheme;
+  });
 
   useEffect(() => {
     const root = window.document.documentElement;
-    
-    if (theme === "dark") {
-      root.setAttribute("data-webtui-theme", "dark");
-    } else {
-      root.setAttribute("data-webtui-theme", "light");
-    }
+    root.setAttribute("data-webtui-theme", theme);
+    localStorage.setItem("webtui-theme", theme);
   }, [theme]);
 
   const value = {

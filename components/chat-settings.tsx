@@ -6,6 +6,7 @@ import "@webtui/css/components/button.css"
 import "@webtui/css/components/input.css"
 import "@webtui/css/utils/box.css"
 import "@webtui/css/components/badge.css"
+import { useTheme } from "./theme-provider"
 
 interface Settings {
   provider: "openai" | "anthropic" | "deepseek"
@@ -67,6 +68,7 @@ function Dropdown({ label, items, value, onSelect, id, position = "bottom baseli
 }
 
 export function ChatSettings({ settings, onSettingsChange, onClose, modelOptions }: ChatSettingsProps) {
+  const { theme, setTheme } = useTheme()
   const [tempSettings, setTempSettings] = useState<Settings>({
     ...settings,
     apiKeys: { ...settings.apiKeys }
@@ -250,6 +252,23 @@ export function ChatSettings({ settings, onSettingsChange, onClose, modelOptions
     backgroundColor: "var(--background1)",
   }
 
+  // Theme options for dropdown
+  const themeOptions = [
+    { label: "Dark (Default)", value: "dark" },
+    { label: "Light", value: "light" },
+    { label: "Catppuccin Mocha", value: "catppuccin-mocha" },
+    { label: "Catppuccin Macchiato", value: "catppuccin-macchiato" },
+    { label: "Catppuccin Frappe", value: "catppuccin-frappe" },
+    { label: "Catppuccin Latte", value: "catppuccin-latte" },
+    { label: "Gruvbox Dark Hard", value: "gruvbox-dark-hard" },
+    { label: "Gruvbox Dark Medium", value: "gruvbox-dark-medium" },
+    { label: "Gruvbox Dark Soft", value: "gruvbox-dark-soft" },
+    { label: "Gruvbox Light Hard", value: "gruvbox-light-hard" },
+    { label: "Gruvbox Light Medium", value: "gruvbox-light-medium" },
+    { label: "Gruvbox Light Soft", value: "gruvbox-light-soft" },
+    { label: "Nord", value: "nord" },
+  ]
+
   return (
     <div style={overlayStyle} onClick={handleClose}>
       <div style={sidebarStyle} onClick={(e) => e.stopPropagation()}>
@@ -264,6 +283,26 @@ export function ChatSettings({ settings, onSettingsChange, onClose, modelOptions
           </button>
         </div>
         <div style={bodyStyle}>
+          {/* Theme Selection */}
+          <div style={sectionStyle}>
+            <h3 style={sectionHeaderStyle}>Theme</h3>
+            <div style={formGroupStyle}>
+              <div style={{ position: "relative", zIndex: 20, isolation: "isolate" }}>
+                <Dropdown
+                  label="Select Theme \uF0D7"
+                  items={themeOptions.map((t) => t.label)}
+                  value={themeOptions.find((t) => t.value === theme)?.label || ""}
+                  onSelect={(label) => {
+                    const selected = themeOptions.find((t) => t.label === label)
+                    if (selected) setTheme(selected.value as any)
+                  }}
+                  id="theme-dropdown"
+                  position="bottom baseline-right"
+                />
+              </div>
+            </div>
+          </div>
+
           {/* Provider Selection */}
           <div style={sectionStyle}>
             <h3 style={sectionHeaderStyle}>AI Provider</h3>
@@ -354,4 +393,4 @@ export function ChatSettings({ settings, onSettingsChange, onClose, modelOptions
       </div>
     </div>
   )
-} 
+}

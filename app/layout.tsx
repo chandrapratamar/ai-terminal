@@ -1,6 +1,7 @@
 import "../styles/globals.css";
 import { Metadata } from "next";
 import type { Viewport } from "next";
+import { ThemeProvider } from "../components/theme-provider";
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -20,7 +21,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" data-webtui-theme="dark">
+    <html lang="en">
         <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
@@ -30,7 +31,9 @@ export default function RootLayout({
         />
       </head>
       <body>
-        {children}
+        <ThemeProvider>
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );

@@ -28,7 +28,7 @@ export function TerminalMessage({ message }: TerminalMessageProps) {
   const messageContainerStyle = {
     marginBottom: "1rem",
     backgroundColor: message.role === "user" ? "var(--background1)" : "var(--background0)",
-    borderLeft: message.role === "assistant" ? "2px solid var(--blue)" : "2px solid var(--green)",
+    borderLeft: message.role === "assistant" ? "2px solid var(--foreground1)" : "2px solid var(--foreground2)",
   }
 
   const headerStyle = {
@@ -44,7 +44,7 @@ export function TerminalMessage({ message }: TerminalMessageProps) {
     alignItems: "center",
     gap: "0.5rem",
     fontSize: "11px",
-    color: message.role === "user" ? "var(--green)" : "var(--blue)",
+    color: message.role === "user" ? "var(--foreground2)" : "var(--foreground1)",
   }
 
   const contentStyle = {
@@ -56,10 +56,10 @@ export function TerminalMessage({ message }: TerminalMessageProps) {
   }
 
   return (
-    <div box-="inset" style={{ backgroundColor: message.role === "user" ? "var(--background1)" : "var(--background0)", borderLeft: message.role === "assistant" ? "2px solid var(--blue)" : "2px solid var(--green)" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0.5rem 1rem", borderBottom: "1px solid var(--background2)" }}>
+    <div box-="inset" style={messageContainerStyle}>
+      <div style={headerStyle}>
         <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "11px" }}>
-          <span is-="badge" variant-={message.role === "user" ? "green" : "blue"}>{message.role === "user" ? "user@webtui" : "assistant@webtui"}</span>
+          <span is-="badge" variant-={message.role === "user" ? "foreground2" : "foreground1"}>{message.role === "user" ? "user@webtui" : "assistant@webtui"}</span>
           <span>~</span>
           <span>{new Date().toLocaleTimeString("en-US", { hour12: false })}</span>
         </div>
