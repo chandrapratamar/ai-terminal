@@ -27,6 +27,7 @@
     "next": "15.2.4",
     "react": "^19",
     "react-dom": "^19",
+    "react-markdown": "^10.1.0",
     "typescript": "^5"
   }
 }

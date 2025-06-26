@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import ReactMarkdown from "react-markdown"
 
 interface Message {
   id: string
@@ -75,7 +76,12 @@ export function TerminalMessage({ message }: TerminalMessageProps) {
           </button>
         </div>
       </div>
-      <div style={{ padding: "1rem", whiteSpace: "pre-wrap", fontSize: "13px", lineHeight: "1.5", overflowX: "auto" }}>{message.content}</div>
+      <div 
+        className="prose"
+        style={{ padding: "1rem", fontSize: "13px", lineHeight: "1.5", overflowX: "auto" }}
+      >
+        <ReactMarkdown>{message.content}</ReactMarkdown>
+      </div>
     </div>
   )
 } 
