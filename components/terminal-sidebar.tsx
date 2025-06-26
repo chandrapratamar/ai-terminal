@@ -58,7 +58,7 @@ export function TerminalSidebar({
     width: "240px",
     height: "100vh",
     backgroundColor: "var(--background1)",
-    borderRight: "1px solid var(--background2)",
+    //borderRight: "1px solid var(--background2)",
     overflow: "hidden",
     transform: isOpen ? "translateX(0)" : "translateX(-100%)",
     transition: "transform 0.3s ease",

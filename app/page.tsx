@@ -55,6 +55,9 @@ export default function Home() {
 
   const { theme } = useTheme()
 
+  // Track if we need to trigger handleSubmit for a new session
+  const [pendingFirstSubmit, setPendingFirstSubmit] = useState(false);
+
   // Model options by provider
   const modelOptions: Record<string, string[]> = {
     openai: [
@@ -153,6 +156,16 @@ export default function Home() {
     localStorage.setItem("chat-sessions", JSON.stringify(sessions))
   }, [sessions])
 
+  // Effect to handle first message submit after session state is ready
+  useEffect(() => {
+    if (pendingFirstSubmit && currentSessionId) {
+      // Create a fake event to pass to handleSubmit
+      const event = new Event('submit', { bubbles: true, cancelable: true });
+      handleSubmit(event as any);
+      setPendingFirstSubmit(false);
+    }
+  }, [pendingFirstSubmit, currentSessionId]);
+
   // Helper functions
   const generateSessionTitle = (message: string) => {
     const words = message.split(" ").slice(0, 5)
@@ -180,16 +193,23 @@ export default function Home() {
 
     // Create a new session if none exists
     if (!currentSessionId) {
-      const newSession: ChatSession = {
+      const newSessionId = Date.now().toString();
+      const userMessage = {
         id: Date.now().toString(),
-        title: "New Session",
-        messages: [],
+        role: "user" as const,
+        content: input,
+      };
+      const newSession: ChatSession = {
+        id: newSessionId,
+        title: generateSessionTitle(input),
+        messages: [userMessage],
         createdAt: new Date(),
         updatedAt: new Date(),
-      }
-
-      setSessions((prev) => [newSession, ...prev])
-      setCurrentSessionId(newSession.id)
+      };
+      setSessions((prev) => [newSession, ...prev]);
+      setCurrentSessionId(newSessionId);
+      setPendingFirstSubmit(true); // Mark that we need to submit after state updates
+      return;
     }
 
     // Add user message to the current session

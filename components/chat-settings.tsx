@@ -289,7 +289,7 @@ export function ChatSettings({ settings, onSettingsChange, onClose, modelOptions
             <div style={formGroupStyle}>
               <div style={{ position: "relative", zIndex: 20, isolation: "isolate" }}>
                 <Dropdown
-                  label="Select Theme \uF0D7"
+                  label="Select Theme"
                   items={themeOptions.map((t) => t.label)}
                   value={themeOptions.find((t) => t.value === theme)?.label || ""}
                   onSelect={(label) => {
