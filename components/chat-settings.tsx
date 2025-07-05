@@ -25,47 +25,22 @@ interface ChatSettingsProps {
   modelOptions: Record<string, string[]>
 }
 
-// Dropdown component for context7/WebTUI style
-interface DropdownProps {
-  label: string
-  items: string[]
-  value: string
-  onSelect: (value: string) => void
-  id?: string
-  position?: string
-}
-
-function Dropdown({ label, items, value, onSelect, id, position = "bottom baseline-right" }: DropdownProps) {
-  return (
-    <details is-="popover" position-={position} style={{ width: "100%" }}>
-      <summary is-="button" style={{ width: "100%", textAlign: "left" }}>
-        {value || label}
-      </summary>
-      <div style={{ padding: 0, width: "100%", background: "var(--background1)" }}>
-        {items.map((item) => (
-          <button
-            key={item}
-            is-="button"
-            variant-={value === item ? "blue" : "background1"}
-            style={{
-              textAlign: "left",
-              width: "100%",
-              borderRadius: 0,
-              border: "none",
-              margin: 0,
-              boxShadow: "none",
-              padding: "0.75lh 1ch"
-            }}
-            onClick={() => onSelect(item)}
-            type="button"
-          >
-            {item}
-          </button>
-        ))}
-      </div>
-    </details>
-  )
-}
+// Theme options
+const themeOptions = [
+  { label: "Dark (Default)", value: "dark" },
+  { label: "Light", value: "light" },
+  { label: "Catppuccin Mocha", value: "catppuccin-mocha" },
+  { label: "Catppuccin Macchiato", value: "catppuccin-macchiato" },
+  { label: "Catppuccin Frappe", value: "catppuccin-frappe" },
+  { label: "Catppuccin Latte", value: "catppuccin-latte" },
+  { label: "Gruvbox Dark Hard", value: "gruvbox-dark-hard" },
+  { label: "Gruvbox Dark Medium", value: "gruvbox-dark-medium" },
+  { label: "Gruvbox Dark Soft", value: "gruvbox-dark-soft" },
+  { label: "Gruvbox Light Hard", value: "gruvbox-light-hard" },
+  { label: "Gruvbox Light Medium", value: "gruvbox-light-medium" },
+  { label: "Gruvbox Light Soft", value: "gruvbox-light-soft" },
+  { label: "Nord", value: "nord" },
+]
 
 export function ChatSettings({ settings, onSettingsChange, onClose, modelOptions }: ChatSettingsProps) {
   const { theme, setTheme } = useTheme()
@@ -131,7 +106,7 @@ export function ChatSettings({ settings, onSettingsChange, onClose, modelOptions
     }))
   }
 
-  // Overlay style
+  // Styles...
   const overlayStyle = {
     position: "fixed" as const,
     top: 0,
@@ -147,7 +122,6 @@ export function ChatSettings({ settings, onSettingsChange, onClose, modelOptions
     transition: "opacity 0.3s ease",
   }
 
-  // Sidebar content style
   const sidebarStyle = {
     backgroundColor: "var(--background0)",
     borderLeft: "1px solid var(--background2)",
@@ -160,7 +134,6 @@ export function ChatSettings({ settings, onSettingsChange, onClose, modelOptions
     transition: "transform 0.3s ease",
   }
 
-  // Header style
   const headerStyle = {
     backgroundColor: "var(--background1)",
     borderBottom: "1px solid var(--background2)",
@@ -170,78 +143,32 @@ export function ChatSettings({ settings, onSettingsChange, onClose, modelOptions
     alignItems: "center",
   }
 
-  // Body style
   const bodyStyle = {
     padding: "0.5rem",
     overflowY: "auto" as const,
     flex: 1,
   }
 
-  // Settings section style
   const sectionStyle = {
     marginBottom: "1.5rem",
   }
 
-  // Section header style
   const sectionHeaderStyle = {
     fontSize: "14px",
     marginBottom: "0.75rem",
     color: "var(--foreground0)",
   }
 
-  // Provider buttons container style
   const providerButtonsStyle = {
     display: "flex",
     gap: "0.5rem",
     marginBottom: "1rem",
   }
 
-  // Form group style
   const formGroupStyle = {
     marginBottom: "1rem",
   }
 
-  // Label style
-  const labelStyle = {
-    display: "block",
-    marginBottom: "0.5rem",
-    color: "var(--foreground1)",
-  }
-
-  // Input style
-  const inputStyle = {
-    backgroundColor: "var(--background1)",
-    border: "1px solid var(--background2)",
-    borderRadius: "4px",
-    padding: "0.5rem",
-    width: "100%",
-    color: "var(--foreground0)",
-    fontFamily: "var(--font-family)",
-  }
-
-  // Select style
-  const selectStyle = {
-    ...inputStyle,
-    height: "36px",
-  }
-
-  // API key input container style
-  const apiKeyInputStyle = {
-    display: "flex",
-    gap: "0.5rem",
-  }
-
-  // API key note style
-  const apiKeyNoteStyle = {
-    fontSize: "12px",
-    color: "var(--foreground2)",
-    marginBottom: "1rem",
-    padding: "0.5rem",
-    backgroundColor: "var(--background1)",
-    borderLeft: "3px solid var(--yellow)",
-  }
-
-  // Button container style
   const buttonContainerStyle = {
     display: "flex",
     justifyContent: "flex-end",
@@ -252,22 +179,14 @@ export function ChatSettings({ settings, onSettingsChange, onClose, modelOptions
     backgroundColor: "var(--background1)",
   }
 
-  // Theme options for dropdown
-  const themeOptions = [
-    { label: "Dark (Default)", value: "dark" },
-    { label: "Light", value: "light" },
-    { label: "Catppuccin Mocha", value: "catppuccin-mocha" },
-    { label: "Catppuccin Macchiato", value: "catppuccin-macchiato" },
-    { label: "Catppuccin Frappe", value: "catppuccin-frappe" },
-    { label: "Catppuccin Latte", value: "catppuccin-latte" },
-    { label: "Gruvbox Dark Hard", value: "gruvbox-dark-hard" },
-    { label: "Gruvbox Dark Medium", value: "gruvbox-dark-medium" },
-    { label: "Gruvbox Dark Soft", value: "gruvbox-dark-soft" },
-    { label: "Gruvbox Light Hard", value: "gruvbox-light-hard" },
-    { label: "Gruvbox Light Medium", value: "gruvbox-light-medium" },
-    { label: "Gruvbox Light Soft", value: "gruvbox-light-soft" },
-    { label: "Nord", value: "nord" },
-  ]
+  const apiKeyNoteStyle = {
+    fontSize: "12px",
+    color: "var(--foreground2)",
+    marginBottom: "1rem",
+    padding: "0.5rem",
+    backgroundColor: "var(--background1)",
+    borderLeft: "3px solid var(--yellow)",
+  }
 
   return (
     <div style={overlayStyle} onClick={handleClose}>
@@ -287,19 +206,35 @@ export function ChatSettings({ settings, onSettingsChange, onClose, modelOptions
           <div style={sectionStyle}>
             <h3 style={sectionHeaderStyle}>Theme</h3>
             <div style={formGroupStyle}>
-              <div style={{ position: "relative", zIndex: 20, isolation: "isolate" }}>
-                <Dropdown
-                  label="Select Theme"
-                  items={themeOptions.map((t) => t.label)}
-                  value={themeOptions.find((t) => t.value === theme)?.label || ""}
-                  onSelect={(label) => {
-                    const selected = themeOptions.find((t) => t.label === label)
-                    if (selected) setTheme(selected.value as any)
-                  }}
-                  id="theme-dropdown"
-                  position="bottom baseline-right"
-                />
-              </div>
+              <details is-="popover" position-="bottom baseline-right" style={{ width: "100%" }}>
+                <summary is-="button" style={{ width: "100%", textAlign: "left" }}>
+                  {themeOptions.find((t) => t.value === theme)?.label || "Select Theme"}
+                </summary>
+                <div style={{ padding: 0, width: "100%", background: "var(--background1)", maxHeight: "300px", overflowY: "auto" }}>
+                  {themeOptions.map((t) => (
+                    <button
+                      key={t.value}
+                      is-="button"
+                      variant-={theme === t.value ? "blue" : "background1"}
+                      style={{
+                        textAlign: "left",
+                        width: "100%",
+                        borderRadius: 0,
+                        border: "none",
+                        margin: 0,
+                        boxShadow: "none",
+                        padding: "0.75lh 1ch"
+                      }}
+                      onClick={(e) => {
+                        setTheme(t.value as any);
+                        (e.target as HTMLElement).closest('details')?.removeAttribute('open');
+                      }}
+                    >
+                      {t.label}
+                    </button>
+                  ))}
+                </div>
+              </details>
             </div>
           </div>
 
@@ -324,16 +259,35 @@ export function ChatSettings({ settings, onSettingsChange, onClose, modelOptions
           <div style={sectionStyle}>
             <h3 style={sectionHeaderStyle}>Model</h3>
             <div style={formGroupStyle}>
-              <div style={{ position: "relative", zIndex: 10, isolation: "isolate" }}>
-                <Dropdown
-                  label="Select Model \uF0D7"
-                  items={modelOptions[tempSettings.provider] || []}
-                  value={tempSettings.model}
-                  onSelect={handleModelChange}
-                  id="model-dropdown"
-                  position="bottom baseline-right"
-                />
-              </div>
+              <details is-="popover" position-="bottom baseline-right" style={{ width: "100%" }}>
+                <summary is-="button" style={{ width: "100%", textAlign: "left" }}>
+                  {tempSettings.model || "Select Model"}
+                </summary>
+                <div style={{ padding: 0, width: "100%", background: "var(--background1)", maxHeight: "300px", overflowY: "auto" }}>
+                  {modelOptions[tempSettings.provider]?.map((model) => (
+                    <button
+                      key={model}
+                      is-="button"
+                      variant-={tempSettings.model === model ? "blue" : "background1"}
+                      style={{
+                        textAlign: "left",
+                        width: "100%",
+                        borderRadius: 0,
+                        border: "none",
+                        margin: 0,
+                        boxShadow: "none",
+                        padding: "0.75lh 1ch"
+                      }}
+                      onClick={(e) => {
+                        handleModelChange(model);
+                        (e.target as HTMLElement).closest('details')?.removeAttribute('open');
+                      }}
+                    >
+                      {model}
+                    </button>
+                  ))}
+                </div>
+              </details>
             </div>
           </div>
 
