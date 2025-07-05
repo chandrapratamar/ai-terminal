@@ -54,6 +54,33 @@ body, html {
 
 /* Terminal Selection */
 ::selection {
+  background-color: var(--foreground2);
+  color: var(--background0);
+}
+
+::-moz-selection {
+  background-color: var(--foreground2);
+  color: var(--background0);
+}
+
+/* Add specific selection styles for code blocks and pre elements */
+pre ::selection, code ::selection {
   background-color: var(--blue);
-  color: var(--base);
+  color: var(--background0);
+}
+
+pre ::-moz-selection, code ::-moz-selection {
+  background-color: var(--blue);
+  color: var(--background0);
+}
+
+/* Ensure input and textarea selection is visible */
+input::selection, textarea::selection {
+  background-color: var(--blue);
+  color: var(--background0);
+}
+
+input::-moz-selection, textarea::-moz-selection {
+  background-color: var(--blue);
+  color: var(--background0);
 }

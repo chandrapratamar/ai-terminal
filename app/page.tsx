@@ -99,34 +99,57 @@ export default function Home() {
         setApiKeyRequired(true)
         return
       }
-    },
-    onFinish: (message) => {
-      if (!currentSessionId) return
+    }
+  })
 
-      // Update session with new message
-      setSessions((prevSessions) => {
-        return prevSessions.map((session) => {
-          if (session.id === currentSessionId) {
+  // Update session messages when chat messages change
+  useEffect(() => {
+    if (!currentSessionId || messages.length === 0) return;
+
+    setSessions((prevSessions) => {
+      return prevSessions.map((session) => {
+        if (session.id === currentSessionId) {
+          // Get the latest message
+          const latestMessage = messages[messages.length - 1];
+          
+          // Find if we already have this message
+          const existingMessageIndex = session.messages.findIndex(m => m.id === latestMessage.id);
+          
+          if (existingMessageIndex !== -1) {
+            // Update existing message
+            const updatedMessages = [...session.messages];
+            updatedMessages[existingMessageIndex] = {
+              id: latestMessage.id,
+              role: latestMessage.role as "user" | "assistant",
+              content: latestMessage.content,
+            };
+            return {
+              ...session,
+              messages: updatedMessages,
+              updatedAt: new Date(),
+            };
+          } else {
+            // Add new message
             const updatedMessages = [
               ...session.messages,
               {
-                id: message.id,
-                role: message.role as "user" | "assistant",
-                content: message.content,
+                id: latestMessage.id,
+                role: latestMessage.role as "user" | "assistant",
+                content: latestMessage.content,
               },
-            ]
+            ];
             return {
               ...session,
               messages: updatedMessages,
               title: updatedMessages.length === 2 ? generateSessionTitle(updatedMessages[0].content) : session.title,
               updatedAt: new Date(),
-            }
+            };
           }
-          return session
-        })
-      })
-    },
-  })
+        }
+        return session;
+      });
+    });
+  }, [messages, currentSessionId]);
 
   // Scroll to bottom when messages change
   useEffect(() => {
