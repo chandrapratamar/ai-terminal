@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import "@webtui/css/components/popover.css"
 import "@webtui/css/components/button.css"
 import "@webtui/css/components/input.css"
@@ -25,22 +25,48 @@ interface ChatSettingsProps {
   modelOptions: Record<string, string[]>
 }
 
-// Theme options
-const themeOptions = [
-  { label: "Dark (Default)", value: "dark" },
-  { label: "Light", value: "light" },
-  { label: "Catppuccin Mocha", value: "catppuccin-mocha" },
-  { label: "Catppuccin Macchiato", value: "catppuccin-macchiato" },
-  { label: "Catppuccin Frappe", value: "catppuccin-frappe" },
-  { label: "Catppuccin Latte", value: "catppuccin-latte" },
-  { label: "Gruvbox Dark Hard", value: "gruvbox-dark-hard" },
-  { label: "Gruvbox Dark Medium", value: "gruvbox-dark-medium" },
-  { label: "Gruvbox Dark Soft", value: "gruvbox-dark-soft" },
-  { label: "Gruvbox Light Hard", value: "gruvbox-light-hard" },
-  { label: "Gruvbox Light Medium", value: "gruvbox-light-medium" },
-  { label: "Gruvbox Light Soft", value: "gruvbox-light-soft" },
-  { label: "Nord", value: "nord" },
-]
+function PopoverSelector({ label, options, value, onSelect }: { label: string, options: string[], value: string, onSelect: (v: string) => void }) {
+  const popoverRef = useRef<HTMLDetailsElement>(null);
+  return (
+    <details is-="popover" position-="center" ref={popoverRef} style={{ width: "100%" }}>
+      <summary
+        is-="button"
+        variant-="background1"
+        style={{
+          width: "100%",
+          textAlign: "left",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          cursor: "pointer",
+          padding: "0.5rem 1rem",
+          border: "none",
+          fontWeight: 500,
+          fontSize: "1rem",
+          borderRadius: "4px",
+          transition: "background 0.15s",
+        }}
+      >
+        <span style={{ color: "var(--blue)" }}>{value}</span>
+        <span style={{ marginLeft: "auto", fontSize: "0.9em", color: "var(--foreground2)" }}>▼</span>
+      </summary>
+      <div style={{ minWidth: "160px", background: "var(--background1)", borderRadius: "4px", boxShadow: "0 2px 8px rgba(0,0,0,0.1)" }}>
+        {options.map(option => (
+          <div
+            key={option}
+            style={{ cursor: "pointer", padding: "0.5rem 1rem", background: option === value ? "var(--background2)" : "none" }}
+            onClick={() => {
+              onSelect(option);
+              popoverRef.current?.removeAttribute("open");
+            }}
+          >
+            {option}
+          </div>
+        ))}
+      </div>
+    </details>
+  );
+}
 
 export function ChatSettings({ settings, onSettingsChange, onClose, modelOptions }: ChatSettingsProps) {
   const { theme, setTheme } = useTheme()
@@ -106,7 +132,7 @@ export function ChatSettings({ settings, onSettingsChange, onClose, modelOptions
     }))
   }
 
-  // Styles...
+  // Overlay style
   const overlayStyle = {
     position: "fixed" as const,
     top: 0,
@@ -122,53 +148,103 @@ export function ChatSettings({ settings, onSettingsChange, onClose, modelOptions
     transition: "opacity 0.3s ease",
   }
 
+  // Sidebar content style
   const sidebarStyle = {
     backgroundColor: "var(--background0)",
     borderLeft: "1px solid var(--background2)",
-    width: "350px",
-    maxWidth: "90%",
+    width: "48ch",
+    maxWidth: "90ch",
     height: "100%",
     display: "flex",
     flexDirection: "column" as const,
     transform: isVisible ? "translateX(0)" : "translateX(100%)",
     transition: "transform 0.3s ease",
+    padding: "1lh 2ch",
   }
 
+  // Header style
   const headerStyle = {
     backgroundColor: "var(--background1)",
     borderBottom: "1px solid var(--background2)",
-    padding: "0.5rem",
+    padding: "1lh 2ch 1lh 2ch",
+    minHeight: "2lh",
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
   }
 
+  // Body style
   const bodyStyle = {
-    padding: "0.5rem",
+    padding: "1lh 2ch",
     overflowY: "auto" as const,
     flex: 1,
   }
 
+  // Settings section style
   const sectionStyle = {
-    marginBottom: "1.5rem",
+    marginBottom: "2lh",
   }
 
+  // Section header style
   const sectionHeaderStyle = {
-    fontSize: "14px",
-    marginBottom: "0.75rem",
+    fontSize: "1lh",
+    marginBottom: "1lh",
     color: "var(--foreground0)",
   }
 
+  // Provider buttons container style
   const providerButtonsStyle = {
     display: "flex",
-    gap: "0.5rem",
-    marginBottom: "1rem",
+    gap: "1ch",
+    marginBottom: "1lh",
   }
 
+  // Form group style
   const formGroupStyle = {
     marginBottom: "1rem",
   }
 
+  // Label style
+  const labelStyle = {
+    display: "block",
+    marginBottom: "0.5rem",
+    color: "var(--foreground1)",
+  }
+
+  // Input style
+  const inputStyle = {
+    backgroundColor: "var(--background1)",
+    border: "1px solid var(--background2)",
+    borderRadius: "4px",
+    padding: "0.5rem",
+    width: "100%",
+    color: "var(--foreground0)",
+    fontFamily: "var(--font-family)",
+  }
+
+  // Select style
+  const selectStyle = {
+    ...inputStyle,
+    height: "36px",
+  }
+
+  // API key input container style
+  const apiKeyInputStyle = {
+    display: "flex",
+    gap: "0.5rem",
+  }
+
+  // API key note style
+  const apiKeyNoteStyle = {
+    fontSize: "12px",
+    color: "var(--foreground2)",
+    marginBottom: "1rem",
+    padding: "0.5rem",
+    backgroundColor: "var(--background1)",
+    borderLeft: "3px solid var(--yellow)",
+  }
+
+  // Button container style
   const buttonContainerStyle = {
     display: "flex",
     justifyContent: "flex-end",
@@ -179,26 +255,34 @@ export function ChatSettings({ settings, onSettingsChange, onClose, modelOptions
     backgroundColor: "var(--background1)",
   }
 
-  const apiKeyNoteStyle = {
-    fontSize: "12px",
-    color: "var(--foreground2)",
-    marginBottom: "1rem",
-    padding: "0.5rem",
-    backgroundColor: "var(--background1)",
-    borderLeft: "3px solid var(--yellow)",
-  }
+  // Theme options for dropdown
+  const themeOptions = [
+    { label: "Dark (Default)", value: "dark" },
+    { label: "Light", value: "light" },
+    { label: "Catppuccin Mocha", value: "catppuccin-mocha" },
+    { label: "Catppuccin Macchiato", value: "catppuccin-macchiato" },
+    { label: "Catppuccin Frappe", value: "catppuccin-frappe" },
+    { label: "Catppuccin Latte", value: "catppuccin-latte" },
+    { label: "Gruvbox Dark Hard", value: "gruvbox-dark-hard" },
+    { label: "Gruvbox Dark Medium", value: "gruvbox-dark-medium" },
+    { label: "Gruvbox Dark Soft", value: "gruvbox-dark-soft" },
+    { label: "Gruvbox Light Hard", value: "gruvbox-light-hard" },
+    { label: "Gruvbox Light Medium", value: "gruvbox-light-medium" },
+    { label: "Gruvbox Light Soft", value: "gruvbox-light-soft" },
+    { label: "Nord", value: "nord" },
+  ]
 
   return (
     <div style={overlayStyle} onClick={handleClose}>
       <div style={sidebarStyle} onClick={(e) => e.stopPropagation()}>
         <div style={headerStyle}>
-          <h2 style={{ margin: 0, fontSize: "16px" }}>┌─[ Terminal Configuration ]─</h2>
+          <h2 style={{ margin: 0, fontSize: "12px" }}>┌─[ Terminal Settings ]─</h2>
           <button 
             is-="button" 
             size-="small"
             onClick={handleClose}
           >
-            [X]
+            
           </button>
         </div>
         <div style={bodyStyle}>
@@ -206,35 +290,15 @@ export function ChatSettings({ settings, onSettingsChange, onClose, modelOptions
           <div style={sectionStyle}>
             <h3 style={sectionHeaderStyle}>Theme</h3>
             <div style={formGroupStyle}>
-              <details is-="popover" position-="bottom baseline-right" style={{ width: "100%" }}>
-                <summary is-="button" style={{ width: "100%", textAlign: "left" }}>
-                  {themeOptions.find((t) => t.value === theme)?.label || "Select Theme"}
-                </summary>
-                <div style={{ padding: 0, width: "100%", background: "var(--background1)", maxHeight: "300px", overflowY: "auto" }}>
-                  {themeOptions.map((t) => (
-                    <button
-                      key={t.value}
-                      is-="button"
-                      variant-={theme === t.value ? "blue" : "background1"}
-                      style={{
-                        textAlign: "left",
-                        width: "100%",
-                        borderRadius: 0,
-                        border: "none",
-                        margin: 0,
-                        boxShadow: "none",
-                        padding: "0.75lh 1ch"
-                      }}
-                      onClick={(e) => {
-                        setTheme(t.value as any);
-                        (e.target as HTMLElement).closest('details')?.removeAttribute('open');
-                      }}
-                    >
-                      {t.label}
-                    </button>
-                  ))}
-                </div>
-              </details>
+              <PopoverSelector
+                label="Theme"
+                options={themeOptions.map((t) => t.label)}
+                value={themeOptions.find((t) => t.value === theme)?.label || ""}
+                onSelect={(label) => {
+                  const selected = themeOptions.find((t) => t.label === label)
+                  if (selected) setTheme(selected.value as any)
+                }}
+              />
             </div>
           </div>
 
@@ -259,35 +323,12 @@ export function ChatSettings({ settings, onSettingsChange, onClose, modelOptions
           <div style={sectionStyle}>
             <h3 style={sectionHeaderStyle}>Model</h3>
             <div style={formGroupStyle}>
-              <details is-="popover" position-="bottom baseline-right" style={{ width: "100%" }}>
-                <summary is-="button" style={{ width: "100%", textAlign: "left" }}>
-                  {tempSettings.model || "Select Model"}
-                </summary>
-                <div style={{ padding: 0, width: "100%", background: "var(--background1)", maxHeight: "300px", overflowY: "auto" }}>
-                  {modelOptions[tempSettings.provider]?.map((model) => (
-                    <button
-                      key={model}
-                      is-="button"
-                      variant-={tempSettings.model === model ? "blue" : "background1"}
-                      style={{
-                        textAlign: "left",
-                        width: "100%",
-                        borderRadius: 0,
-                        border: "none",
-                        margin: 0,
-                        boxShadow: "none",
-                        padding: "0.75lh 1ch"
-                      }}
-                      onClick={(e) => {
-                        handleModelChange(model);
-                        (e.target as HTMLElement).closest('details')?.removeAttribute('open');
-                      }}
-                    >
-                      {model}
-                    </button>
-                  ))}
-                </div>
-              </details>
+              <PopoverSelector
+                label="Model"
+                options={modelOptions[tempSettings.provider] || []}
+                value={tempSettings.model}
+                onSelect={handleModelChange}
+              />
             </div>
           </div>
 
@@ -320,7 +361,7 @@ export function ChatSettings({ settings, onSettingsChange, onClose, modelOptions
                     type="button"
                     onClick={() => toggleApiKeyVisibility(provider)}
                   >
-                    {showApiKeys[provider] ? "[HIDE]" : "[SHOW]"}
+                    {showApiKeys[provider] ? "󰈉" : "󰈈"}
                   </button>
                 </div>
               </label>
@@ -334,14 +375,14 @@ export function ChatSettings({ settings, onSettingsChange, onClose, modelOptions
             onClick={handleClose}
             style={{marginRight: "0.5rem"}}
           >
-            [CANCEL]
+            󰜺
           </button>
           <button 
             is-="button" 
             variant-="blue"
             onClick={handleSave}
           >
-           [SAVE]
+           
           </button>
         </div>
       </div>

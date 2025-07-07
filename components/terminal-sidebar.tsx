@@ -55,7 +55,7 @@ export function TerminalSidebar({
   const sidebarStyle = {
     display: "flex",
     flexDirection: "column" as const,
-    width: "240px",
+    width: "40ch",
     height: "100vh",
     backgroundColor: "var(--background1)",
     //borderRight: "1px solid var(--background2)",
@@ -66,13 +66,15 @@ export function TerminalSidebar({
     top: 0,
     left: 0,
     zIndex: 50,
+    padding: "1lh 1ch",
   }
 
   const headerStyle = {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    padding: "0.5rem 1rem",
+    flexWrap: "wrap" as const,
+    padding: "1lh 1ch",
     borderBottom: "1px solid var(--background2)",
     backgroundColor: "var(--background2)",
   }
@@ -80,11 +82,11 @@ export function TerminalSidebar({
   const contentStyle = {
     flex: 1,
     overflowY: "auto" as const,
-    padding: "0.5rem",
+    padding: "1lh 1ch",
   }
 
   const emptyStateStyle = {
-    padding: "2rem 1rem",
+    padding: "2lh 1ch",
     textAlign: "center" as const,
     color: "var(--foreground2)",
     fontSize: "11px",
@@ -95,14 +97,23 @@ export function TerminalSidebar({
       <div style={headerStyle} box-="inset">
         <span is-="badge" variant-="background2">┌─[ Active Sessions ]─</span>
         <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
-          <button is-="button" size-="small" variant-="background2" onClick={onNewSession} title="New session">
-            [+]
+          <button
+            is-="button"
+            size-="small"
+            onClick={onNewSession}
+            title="New session"
+          >
+            󱐏
           </button>
-          {onClose && (
-            <button is-="button" size-="small" variant-="red" onClick={onClose} title="Close sidebar">
-              [X]
-            </button>
-          )}
+          <button
+            is-="button"
+            size-="small"
+            onClick={onClose || (() => {})}
+            title="Close sidebar"
+            style={{ marginLeft: 0 }}
+          >
+            󰅗
+          </button>
         </div>
       </div>
 
@@ -154,7 +165,7 @@ export function TerminalSidebar({
                 }}
                 title="Delete session"
               >
-                [X]
+                󱐑
               </button>
             </div>
           ))

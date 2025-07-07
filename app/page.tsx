@@ -7,6 +7,7 @@ import { ChatSettings } from "@/components/chat-settings"
 import { useChat } from "@ai-sdk/react"
 import '../styles/chat.css'
 import { useTheme } from "../components/theme-provider"
+import { getFromDB, setToDB } from '../lib/db'
 
 // Define interfaces
 interface Message {
@@ -87,7 +88,7 @@ export default function Home() {
   }
 
   // Chat hook
-  const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat({
+  const { messages: chatMessages, input, handleInputChange, handleSubmit, status } = useChat({
     api: "/api/chat",
     body: {
       model: settings.model,
@@ -99,85 +100,57 @@ export default function Home() {
         setApiKeyRequired(true)
         return
       }
-    }
-  })
-
-  // Update session messages when chat messages change
-  useEffect(() => {
-    if (!currentSessionId || messages.length === 0) return;
-
-    setSessions((prevSessions) => {
-      return prevSessions.map((session) => {
-        if (session.id === currentSessionId) {
-          // Get the latest message
-          const latestMessage = messages[messages.length - 1];
-          
-          // Find if we already have this message
-          const existingMessageIndex = session.messages.findIndex(m => m.id === latestMessage.id);
-          
-          if (existingMessageIndex !== -1) {
-            // Update existing message
-            const updatedMessages = [...session.messages];
-            updatedMessages[existingMessageIndex] = {
-              id: latestMessage.id,
-              role: latestMessage.role as "user" | "assistant",
-              content: latestMessage.content,
-            };
-            return {
-              ...session,
-              messages: updatedMessages,
-              updatedAt: new Date(),
-            };
-          } else {
-            // Add new message
+    },
+    onFinish: (message) => {
+      if (!currentSessionId) return
+      setSessions((prevSessions) => {
+        return prevSessions.map((session) => {
+          if (session.id === currentSessionId) {
             const updatedMessages = [
               ...session.messages,
               {
-                id: latestMessage.id,
-                role: latestMessage.role as "user" | "assistant",
-                content: latestMessage.content,
+                id: message.id,
+                role: message.role as "user" | "assistant",
+                content: message.content,
               },
-            ];
+            ]
             return {
               ...session,
               messages: updatedMessages,
               title: updatedMessages.length === 2 ? generateSessionTitle(updatedMessages[0].content) : session.title,
               updatedAt: new Date(),
-            };
+            }
           }
-        }
-        return session;
-      });
-    });
-  }, [messages, currentSessionId]);
+          return session
+        })
+      })
+    },
+  })
 
   // Scroll to bottom when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
-  }, [messages])
+  }, [chatMessages])
 
-  // Load settings from localStorage
+  // Load settings and sessions from IndexedDB
   useEffect(() => {
-    const savedSettings = localStorage.getItem("chat-settings")
-    if (savedSettings) {
-      setSettings(JSON.parse(savedSettings))
-    }
+    getFromDB('chat-settings', 'settings').then(savedSettings => {
+      if (savedSettings) setSettings(savedSettings);
+    });
+    getFromDB('chat-sessions', 'sessions').then(savedSessions => {
+      if (savedSessions) setSessions(savedSessions);
+    });
+  }, []);
 
-    const savedSessions = localStorage.getItem("chat-sessions")
-    if (savedSessions) {
-      setSessions(JSON.parse(savedSessions))
-    }
-  }, [])
-
-  // Save settings to localStorage
+  // Save settings to IndexedDB
   useEffect(() => {
-    localStorage.setItem("chat-settings", JSON.stringify(settings))
-  }, [settings])
+    setToDB('chat-settings', 'settings', settings);
+  }, [settings]);
 
-  // Save sessions to localStorage
+  // Save sessions to IndexedDB
   useEffect(() => {
-    localStorage.setItem("chat-sessions", JSON.stringify(sessions))
-  }, [sessions])
+    setToDB('chat-sessions', 'sessions', sessions);
+  }, [sessions]);
 
   // Effect to handle first message submit after session state is ready
   useEffect(() => {
@@ -273,29 +246,60 @@ export default function Home() {
   const currentSession = sessions.find((session) => session.id === currentSessionId)
   const sessionMessages = currentSession?.messages || []
 
+  // Determine which messages to display
+  let displayMessages = sessionMessages
+  let isStreaming = status === "streaming"
+  if (isStreaming && chatMessages.length > 0) {
+    // Show all user messages from session, and the currently streaming assistant message from chatMessages
+    // Find the last assistant message in chatMessages
+    const lastAssistant = [...chatMessages].reverse().find(m => m.role === "assistant")
+    if (lastAssistant) {
+      displayMessages = [
+        ...sessionMessages,
+        {
+          id: lastAssistant.id,
+          role: "assistant",
+          content: lastAssistant.content,
+          streaming: true,
+        },
+      ]
+    }
+  }
+
   // Main container style
   const containerStyle = {
     display: "flex",
-    height: "100vh",
+    minHeight: "100vh",
     overflow: "hidden",
     backgroundColor: "var(--background0)",
+    fontFamily: "var(--font-family, monospace)",
+    fontSize: "var(--font-size, 16px)",
+    gap: "0ch",
   }
 
-  // Main content style
-  const mainContentStyle = {
+  // Main content wrapper style for centering
+  const mainContentWrapperStyle = {
+    display: "flex",
     flex: 1,
+    justifyContent: "center",
+    alignItems: "stretch",
+  }
+
+  // Main content style (WEBTUI authentic)
+  const mainContentStyle = {
     display: "flex",
     flexDirection: "column" as const,
-    height: "100%",
-    marginLeft: sidebarOpen ? "240px" : "0",
-    transition: "margin-left 0.3s ease",
+    width: "100vw",
+    margin: "0",
+    boxSizing: "border-box" as const,
   }
 
   // Terminal header style
   const headerStyle = {
     backgroundColor: "var(--background1)",
     borderBottom: "1px solid var(--background2)",
-    padding: "0",
+    padding: "1lh 2ch 1lh 2ch",
+    minHeight: "2lh",
   }
 
   // Title bar style
@@ -303,9 +307,10 @@ export default function Home() {
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    padding: "0.5rem 1rem",
+    padding: "1lh 2ch",
     backgroundColor: "var(--background2)",
     borderBottom: "1px solid var(--background1)",
+    minHeight: "2lh",
   }
 
   // Menu bar style
@@ -313,42 +318,42 @@ export default function Home() {
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    padding: "0.5rem 1rem",
+    padding: "1lh 2ch",
     backgroundColor: "var(--background1)",
     borderBottom: "1px solid var(--background2)",
-    fontSize: "11px",
+    fontSize: "1em",
+    minHeight: "2lh",
   }
 
   // Terminal output style
   const outputStyle = {
     flex: 1,
     overflowY: "auto" as const,
-    padding: "1rem",
-    width: "100%",
-    maxWidth: "100vw",
+    padding: "1lh 2ch",
     boxSizing: "border-box" as const,
+    fontFamily: "inherit",
+    fontSize: "inherit",
   }
 
   // Terminal input area style
   const inputAreaStyle = {
     borderTop: "1px solid var(--background2)",
     backgroundColor: "var(--background1)",
-    padding: "1rem",
+    padding: "1lh 2ch",
     width: "100%",
-    maxWidth: "100vw",
     boxSizing: "border-box" as const,
   }
 
   // Terminal input container style
   const inputContainerStyle = {
     display: "flex",
-    gap: "0.5rem",
+    gap: "1ch",
     backgroundColor: "var(--background0)",
     border: "1px solid var(--background2)",
-    padding: "0.5rem",
+    padding: "1lh 2ch",
     width: "100%",
-    maxWidth: "100vw",
     boxSizing: "border-box" as const,
+    alignItems: "center",
   }
 
   // Terminal prompt style
@@ -358,7 +363,8 @@ export default function Home() {
     whiteSpace: "nowrap" as const,
     display: "flex",
     alignItems: "center",
-    paddingRight: "0.5rem",
+    paddingRight: "1ch",
+    minWidth: "12ch",
   }
 
   // Empty state style
@@ -367,8 +373,7 @@ export default function Home() {
     flexDirection: "column" as const,
     alignItems: "center",
     justifyContent: "center",
-    height: "100%",
-    padding: "2rem",
+    height: "20lh",
     textAlign: "center" as const,
     color: "var(--foreground2)",
   }
@@ -377,10 +382,10 @@ export default function Home() {
   const quickCommandsStyle = {
     display: "flex",
     flexDirection: "column" as const,
-    gap: "1rem",
-    marginTop: "2rem",
+    gap: "1lh",
+    marginTop: "2lh",
     width: "100%",
-    maxWidth: "400px",
+    maxWidth: "60ch",
   }
 
   // Add this near other style logic
@@ -389,252 +394,240 @@ export default function Home() {
   return (
     <div style={containerStyle}>
       {/* Sidebar */}
-      <TerminalSidebar
-        sessions={sessions}
-        currentSessionId={currentSessionId}
-        onLoadSession={setCurrentSessionId}
-        onDeleteSession={handleDeleteSession}
-        onNewSession={createNewSession}
-        isOpen={sidebarOpen}
-        onClose={() => setSidebarOpen(false)}
-      />
-
-      {/* Main Content */}
-      <div style={mainContentStyle}>
-        {/* Terminal Header */}
-        <div style={headerStyle}>
-          <div style={titleBarStyle}>
-            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-              <div style={{ display: "flex", gap: "0.25rem" }}>
-                <div style={{ 
-                  width: "12px", 
-                  height: "12px", 
-                  borderRadius: "50%", 
-                  backgroundColor: "var(--red)",
-                  border: "1px solid var(--background3)",
-                }}></div>
-                <div style={{ 
-                  width: "12px", 
-                  height: "12px", 
-                  borderRadius: "50%", 
-                  backgroundColor: "var(--yellow)",
-                  border: "1px solid var(--background3)",
-                }}></div>
-                <div style={{ 
-                  width: "12px", 
-                  height: "12px", 
-                  borderRadius: "50%", 
-                  backgroundColor: "var(--green)",
-                  border: "1px solid var(--background3)",
-                }}></div>
+      {sidebarOpen && (
+        <TerminalSidebar
+          sessions={sessions}
+          currentSessionId={currentSessionId}
+          onLoadSession={setCurrentSessionId}
+          onDeleteSession={handleDeleteSession}
+          onNewSession={createNewSession}
+          isOpen={sidebarOpen}
+          onClose={() => setSidebarOpen(false)}
+        />
+      )}
+      {/* Main Content Wrapper (centers content) */}
+      <div style={mainContentWrapperStyle}>
+        <div style={mainContentStyle}>
+          {/* Terminal Header */}
+          <div style={headerStyle}>
+            <div style={titleBarStyle}>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                <div style={{ display: "flex", gap: "0.25rem" }}>
+                  <div style={{ 
+                    width: "12px", 
+                    height: "12px", 
+                    borderRadius: "50%", 
+                    backgroundColor: "var(--red)",
+                    border: "1px solid var(--background3)",
+                  }}></div>
+                  <div style={{ 
+                    width: "12px", 
+                    height: "12px", 
+                    borderRadius: "50%", 
+                    backgroundColor: "var(--yellow)",
+                    border: "1px solid var(--background3)",
+                  }}></div>
+                  <div style={{ 
+                    width: "12px", 
+                    height: "12px", 
+                    borderRadius: "50%", 
+                    backgroundColor: "var(--green)",
+                    border: "1px solid var(--background3)",
+                  }}></div>
+                </div>
+                <h1 style={{ 
+                  fontSize: "12px", 
+                  margin: 0, 
+                  fontWeight: "normal",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.5rem",
+                }}>
+                  ┌─[ AI Terminal v0.1.2 ] - {currentSession?.title || "No Session"}
+                </h1>
               </div>
-              <h1 style={{ 
-                fontSize: "12px", 
-                margin: 0, 
-                fontWeight: "normal",
-                display: "flex",
-                alignItems: "center",
-                gap: "0.5rem",
-              }}>
-                ┌─[ WebTUI Chat v0.1.2 ] - {currentSession?.title || "No Session"}
-              </h1>
             </div>
-          </div>
 
-          <div style={menuBarStyle}>
-            <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-              <button 
-                is-="button" 
-                size-="small"
-                onClick={() => setSidebarOpen(!sidebarOpen)}
-              >
-                {sidebarOpen ? "Hide" : "[☰]"}
-              </button>
-              <button 
-                is-="button" 
-                size-="small"
-                onClick={createNewSession}
-              >
-                [+]
-              </button>
-              <button 
-                is-="button" 
-                size-="small"
-                onClick={() => setSettingsOpen(true)}
-              >
-                [🛠]
-              </button>
-            </div>
-            <div style={{ 
-              display: "flex", 
-              alignItems: "center", 
-              gap: "0.5rem",
-              backgroundColor: "var(--background2)",
-              padding: "0.25rem 0.5rem",
-              fontSize: "10px",
-            }}>
-              
-              <span style={{ 
-                color: settings.provider === "openai" ? "var(--green)" : 
-                       settings.provider === "anthropic" ? "var(--blue)" : "var(--yellow)" 
-              }}>
-                {settings.provider}
-              </span>
-              <span>|</span>
-                <span>{settings.model}</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Terminal Output */}
-        <div style={outputStyle}>
-          {apiKeyRequired ? (
-            <div style={emptyStateStyle}>
-              <div box-="inset" style={{ padding: "2rem", maxWidth: "500px" }}>
-                <h2>API Key Required</h2>
-                <p>Please set your {settings.provider} API key in the settings to continue.</p>
+            <div style={menuBarStyle}>
+              <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
                 <button 
                   is-="button" 
-                  variant-="blue"
-                  onClick={() => setSettingsOpen(true)}
-                  style={{ marginTop: "1rem" }}
+                  size-="small"
+                  onClick={() => setSidebarOpen(!sidebarOpen)}
                 >
-                  Open Settings
+                  {sidebarOpen ? "Hide" : ""}
+                </button>
+                <button 
+                  is-="button" 
+                  size-="small"
+                  onClick={createNewSession}
+                >
+                  󱐏
+                </button>
+                <button 
+                  is-="button" 
+                  size-="small"
+                  onClick={() => setSettingsOpen(true)}
+                >
+                  &#xe690;
                 </button>
               </div>
-            </div>
-          ) : sessionMessages.length === 0 ? (
-            <div style={emptyStateStyle}>
-              <div style={{
-                fontFamily: "monospace",
-                whiteSpace: "pre",
-                color: "var(--blue)",
-                marginBottom: "1rem",
-                fontSize: "clamp(8px, 2vw, 16px)",
-                lineHeight: 1,
+              <div style={{ 
+                display: "flex", 
+                alignItems: "center", 
+                gap: "0.5rem",
+                backgroundColor: "var(--background2)",
+                padding: "0.25rem 0.5rem",
+                fontSize: "10px",
               }}>
-{`
-╔════════════════════════════════════════════════════╗
-║  ██╗    ██╗███████╗██████╗ ████████╗██╗   ██╗██╗   ║
-║  ██║    ██║██╔════╝██╔══██╗╚══██╔══╝██║   ██║██║   ║
-║  ██║ █╗ ██║█████╗  ██████╔╝   ██║   ██║   ██║██║   ║
-║  ██║███╗██║██╔══╝  ██╔══██╗   ██║   ██║   ██║██║   ║
-║  ╚███╔███╔╝███████╗██████╔╝   ██║   ╚██████╔╝██║   ║
-║   ╚══╝╚══╝ ╚══════╝╚═════╝    ╚═╝    ╚═════╝ ╚═╝   ║
-║                                                    ║
-║             Terminal User Chat Interface           ║
-║                   Version 0.1.2                    ║
-╚════════════════════════════════════════════════════╝
-                               `}
-              </div>
-              <h1>Welcome to WebTUI Chat</h1>
-              <p>Start a conversation with an AI assistant using your API keys.</p>
-              
-              <div style={quickCommandsStyle}>
-                <div box-="square" style={{ 
-                  padding: "0.75rem", 
-                  cursor: "pointer",
-                  backgroundColor: "var(--background1)",
-                  border: "1px solid var(--background2)",
-                }} onClick={() => {
-                  if (inputRef.current) {
-                    inputRef.current.value = "What are the best practices for creating accessible web applications?";
-                    inputRef.current.focus();
-                  }
-                }}>
-                  $ What are the best practices for creating accessible web applications?
-                </div>
                 
-                <div box-="square" style={{ 
-                  padding: "0.75rem", 
-                  cursor: "pointer",
-                  backgroundColor: "var(--background1)",
-                  border: "1px solid var(--background2)",
-                }} onClick={() => {
-                  if (inputRef.current) {
-                    inputRef.current.value = "Explain the differences between REST and GraphQL APIs.";
-                    inputRef.current.focus();
-                  }
+                <span style={{ 
+                  color: settings.provider === "openai" ? "var(--green)" : 
+                         settings.provider === "anthropic" ? "var(--blue)" : "var(--yellow)" 
                 }}>
-                  $ Explain the differences between REST and GraphQL APIs.
-                </div>
-                
-                <div box-="square" style={{ 
-                  padding: "0.75rem", 
-                  cursor: "pointer",
-                  backgroundColor: "var(--background1)",
-                  border: "1px solid var(--background2)",
-                }} onClick={() => {
-                  if (inputRef.current) {
-                    inputRef.current.value = "What are some strategies for optimizing website performance?";
-                    inputRef.current.focus();
-                  }
-                }}>
-                  $ What are some strategies for optimizing website performance?
-                </div>
+                  {settings.provider}
+                </span>
+                <span>|</span>
+                  <span>{settings.model}</span>
               </div>
             </div>
-          ) : (
-            <>
-              {sessionMessages.map((message) => (
-                <TerminalMessage key={message.id} message={message} />
-              ))}
-              {isLoading && (
-                <div style={{ padding: "1rem", color: "var(--foreground2)" }}>
-                  Assistant is typing...
-                </div>
-              )}
-              <div ref={messagesEndRef} />
-            </>
-          )}
-        </div>
+          </div>
 
-        {/* Terminal Input Area */}
-        <div style={inputAreaStyle}>
-          <form 
-            onSubmit={handleFormSubmit}
-            suppressHydrationWarning={true}
-          >
-            <div style={inputContainerStyle}>
-              <div style={promptStyle}>user@webtui:~$</div>
-              <textarea
-                ref={inputRef}
-                value={input}
-                onChange={handleInputChange}
-                placeholder="Type your message here..."
-                suppressHydrationWarning={true}
-                style={{
-                  flex: 1,
-                  border: "none",
-                  background: "transparent",
-                  color: "var(--foreground0)",
-                  resize: "none",
-                  height: "40px",
-                  outline: "none",
-                  fontFamily: "var(--font-family)",
-                  fontSize: "var(--font-size)",
-                  width: "100%",
-                  maxWidth: "100%",
-                  boxSizing: "border-box"
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && !e.shiftKey) {
-                    e.preventDefault()
-                    handleFormSubmit(e)
-                  }
-                }}
-              />
-              <button 
-                is-="button" 
-                variant-="blue" 
-                type="submit" 
-                disabled={isLoading || !input.trim()}
-                className="exec-btn"
-              >
-                [EXEC]
-              </button>
-            </div>
-          </form>
+          {/* Terminal Output */}
+          <div style={outputStyle}>
+            {apiKeyRequired ? (
+              <div style={emptyStateStyle}>
+                <div box-="inset" style={{ padding: "2rem", maxWidth: "500px" }}>
+                  <h2>API Key Required</h2>
+                  <p>Please set your {settings.provider} API key in the settings to continue.</p>
+                  <button 
+                    is-="button" 
+                    variant-="blue"
+                    onClick={() => setSettingsOpen(true)}
+                    style={{ marginTop: "1rem" }}
+                  >
+                    Open Settings
+                  </button>
+                </div>
+              </div>
+            ) : displayMessages.length === 0 ? (
+              <div style={emptyStateStyle}>
+                <div style={{
+                  fontFamily: "monospace",
+                  whiteSpace: "pre",
+                  color: "var(--blue)",
+                  marginBottom: "1rem",
+                  fontSize: "clamp(8px, 2vw, 16px)",
+                  lineHeight: 1,
+                }}>
+{`
+╭──────────────╮
+      │ AI TERMINAL  │   >_ 
+╰──────────────╯
+`}
+                </div>
+                <h1>Welcome to AI Terminal</h1>
+                <p>Start a conversation with an AI assistant using your API keys.</p>
+                
+                <div style={quickCommandsStyle}>
+                  <div box-="square" style={{ 
+                    padding: "0.75rem", 
+                    cursor: "pointer",
+                    backgroundColor: "var(--background1)",
+                    border: "1px solid var(--background2)",
+                  }} onClick={() => {
+                    handleInputChange({ target: { value: "What are the best practices for creating accessible web applications?" } });
+                    inputRef.current?.focus();
+                  }}>
+                    $ What are the best practices for creating accessible web applications?
+                  </div>
+                  
+                  <div box-="square" style={{ 
+                    padding: "0.75rem", 
+                    cursor: "pointer",
+                    backgroundColor: "var(--background1)",
+                    border: "1px solid var(--background2)",
+                  }} onClick={() => {
+                    handleInputChange({ target: { value: "Explain the differences between REST and GraphQL APIs." } });
+                    inputRef.current?.focus();
+                  }}>
+                    $ Explain the differences between REST and GraphQL APIs.
+                  </div>
+                  
+                  <div box-="square" style={{ 
+                    padding: "0.75rem", 
+                    cursor: "pointer",
+                    backgroundColor: "var(--background1)",
+                    border: "1px solid var(--background2)",
+                  }} onClick={() => {
+                    handleInputChange({ target: { value: "What are some strategies for optimizing website performance?" } });
+                    inputRef.current?.focus();
+                  }}>
+                    $ What are some strategies for optimizing website performance?
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <>
+                {displayMessages.map((message, idx) => (
+                  <TerminalMessage key={message.id}
+                    message={message}
+                    streaming={isStreaming && idx === displayMessages.length - 1 && message.role === "assistant"}
+                  />
+                ))}
+                <div ref={messagesEndRef} />
+              </>
+            )}
+          </div>
+
+          {/* Terminal Input Area */}
+          <div style={inputAreaStyle}>
+            <form 
+              onSubmit={handleFormSubmit}
+              suppressHydrationWarning={true}
+            >
+              <div style={inputContainerStyle}>
+                <div style={promptStyle}>user@webtui:~$</div>
+                <textarea
+                  ref={inputRef}
+                  value={input}
+                  onChange={handleInputChange}
+                  placeholder="Type your message here..."
+                  suppressHydrationWarning={true}
+                  style={{
+                    flex: 1,
+                    border: "none",
+                    background: "transparent",
+                    color: "var(--foreground0)",
+                    resize: "none",
+                    height: "40px",
+                    outline: "none",
+                    fontFamily: "var(--font-family)",
+                    fontSize: "var(--font-size)",
+                    width: "100%",
+                    maxWidth: "100%",
+                    boxSizing: "border-box"
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault()
+                      handleFormSubmit(e)
+                    }
+                  }}
+                  disabled={status === "streaming" || status === "submitted"}
+                />
+                <button 
+                  is-="button" 
+                  variant-="blue" 
+                  type="submit" 
+                  disabled={status === "streaming" || status === "submitted" || !input.trim()}
+                  className="exec-btn"
+                >
+                  [󰿄]
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       </div>
 

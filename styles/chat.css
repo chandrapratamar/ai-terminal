@@ -1,4 +1,5 @@
 @import "@webtui/css/components/typography.css";
+@import "@webtui/plugin-nf";
 
 .exec-btn {
   font-size: clamp(9px, 1vw, 15px);

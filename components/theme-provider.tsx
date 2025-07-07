@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
+import { getFromDB, setToDB } from '../lib/db';
 
 type Theme =
   | "light"
@@ -35,18 +36,19 @@ export function ThemeProvider({
   children,
   defaultTheme = "dark",
 }: ThemeProviderProps) {
-  const [theme, setTheme] = useState<Theme>(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("webtui-theme");
-      if (stored) return stored as Theme;
-    }
-    return defaultTheme;
-  });
+  const [theme, setTheme] = useState<Theme>(defaultTheme);
+
+  // Load theme from IndexedDB
+  useEffect(() => {
+    getFromDB('webtui-theme', 'theme').then(stored => {
+      if (stored) setTheme(stored as Theme);
+    });
+  }, []);
 
   useEffect(() => {
     const root = window.document.documentElement;
     root.setAttribute("data-webtui-theme", theme);
-    localStorage.setItem("webtui-theme", theme);
+    setToDB('webtui-theme', 'theme', theme);
   }, [theme]);
 
   const value = {

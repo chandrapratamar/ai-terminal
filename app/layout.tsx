@@ -11,8 +11,8 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "WebTUI Chat Interface",
-  description: "LLM Chat Interface with WebTUI CSS",
+  title: "AI Terminal",
+  description: "LLM Chat Interface with a terminal-inspired UI.",
 };
 
 export default function RootLayout({

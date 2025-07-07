@@ -14,9 +14,10 @@
 @import '@webtui/theme-catppuccin';
 @import '@webtui/theme-gruvbox';
 @import '@webtui/theme-nord';
+@import "@webtui/plugin-nf";
 
 :root {
-  --font-family: "JetBrains Mono", monospace;
+  --font-family: "JetBrains Mono", monospace, Menlo, Monaco, monospace, "Symbols Nerd Font";
   --font-size: 13px;
   --line-height: 1.4;
 }
