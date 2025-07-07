@@ -14,6 +14,7 @@ interface Message {
   id: string
   role: "user" | "assistant"
   content: string
+  streaming?: boolean
 }
 
 interface ChatSession {
@@ -536,7 +537,10 @@ export default function Home() {
                     backgroundColor: "var(--background1)",
                     border: "1px solid var(--background2)",
                   }} onClick={() => {
-                    handleInputChange({ target: { value: "What are the best practices for creating accessible web applications?" } });
+                    const event = {
+                      target: { value: "What are the best practices for creating accessible web applications?" }
+                    } as React.ChangeEvent<HTMLTextAreaElement>;
+                    handleInputChange(event);
                     inputRef.current?.focus();
                   }}>
                     $ What are the best practices for creating accessible web applications?
@@ -548,7 +552,10 @@ export default function Home() {
                     backgroundColor: "var(--background1)",
                     border: "1px solid var(--background2)",
                   }} onClick={() => {
-                    handleInputChange({ target: { value: "Explain the differences between REST and GraphQL APIs." } });
+                    const event = {
+                      target: { value: "Explain the differences between REST and GraphQL APIs." }
+                    } as React.ChangeEvent<HTMLTextAreaElement>;
+                    handleInputChange(event);
                     inputRef.current?.focus();
                   }}>
                     $ Explain the differences between REST and GraphQL APIs.
@@ -560,7 +567,10 @@ export default function Home() {
                     backgroundColor: "var(--background1)",
                     border: "1px solid var(--background2)",
                   }} onClick={() => {
-                    handleInputChange({ target: { value: "What are some strategies for optimizing website performance?" } });
+                    const event = {
+                      target: { value: "What are some strategies for optimizing website performance?" }
+                    } as React.ChangeEvent<HTMLTextAreaElement>;
+                    handleInputChange(event);
                     inputRef.current?.focus();
                   }}>
                     $ What are some strategies for optimizing website performance?
