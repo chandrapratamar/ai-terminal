@@ -364,7 +364,6 @@ export default function Home() {
     display: "flex",
     gap: "1ch",
     backgroundColor: "var(--background0)",
-    border: "1px solid var(--background2)",
     padding: isMobile ? "0.5lh 1ch" : "1lh 2ch",
     width: "100%",
     boxSizing: "border-box" as const,
@@ -561,7 +560,6 @@ export default function Home() {
                     padding: "1.1ch", 
                     cursor: "pointer",
                     backgroundColor: "var(--background2)",
-                    border: "0.05ch solid var(--background3)",
                     color: "var(--foreground0)",
                     fontWeight: "bold",
                   }} onClick={() => {
@@ -578,7 +576,6 @@ export default function Home() {
                     padding: "1.1ch", 
                     cursor: "pointer",
                     backgroundColor: "var(--background2)",
-                    border: "0.05ch solid var(--background3)",
                     color: "var(--foreground0)",
                     fontWeight: "bold",
                   }} onClick={() => {
@@ -595,7 +592,6 @@ export default function Home() {
                     padding: "1.1ch", 
                     cursor: "pointer",
                     backgroundColor: "var(--background2)",
-                    border: "0.05ch solid var(--background3)",
                     color: "var(--foreground0)",
                     fontWeight: "bold",
                   }} onClick={() => {
@@ -627,6 +623,7 @@ export default function Home() {
             <form 
               onSubmit={handleFormSubmit}
               suppressHydrationWarning={true}
+              style={{ display: 'flex', gap: '1ch', alignItems: 'center' }}
             >
               <div style={inputContainerStyle}>
                 <textarea
@@ -641,13 +638,12 @@ export default function Home() {
                     background: "transparent",
                     color: "var(--foreground0)",
                     resize: "none",
-                    height: isMobile ? "28px" : "40px",
                     outline: "none",
                     fontFamily: "var(--font-family)",
                     fontSize: isMobile ? "0.7lh" : "var(--font-size)",
                     width: "100%",
                     maxWidth: "100%",
-                    boxSizing: "border-box"
+                    boxSizing: "border-box",
                   }}
                   onKeyDown={(e) => {
                     if (e.key === "Enter" && !e.shiftKey) {
@@ -657,16 +653,19 @@ export default function Home() {
                   }}
                   disabled={status === "streaming" || status === "submitted"}
                 />
-                <button 
-                  is-="button" 
-                  variant-="blue" 
-                  type="submit" 
-                  disabled={status === "streaming" || status === "submitted" || !input.trim()}
-                  className="exec-btn"
-                >
-                  [󰿄 SEND]
-                </button>
               </div>
+              <button 
+                is-="button" 
+                variant-="blue" 
+                size-="medium"
+                type="submit" 
+                disabled={status === "streaming" || status === "submitted" || !input.trim()}
+                className="exec-btn"
+                style={{ paddingLeft: '1ch',paddingRight: '1ch', display: 'flex', alignItems: 'center',
+                }}
+              >
+                [󰿄] SEND
+              </button>
             </form>
           </div>
         </div>
