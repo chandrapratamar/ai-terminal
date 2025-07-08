@@ -348,7 +348,7 @@ export default function Home() {
   const inputAreaStyle = {
     borderTop: "1px solid var(--background2)",
     backgroundColor: "var(--background1)",
-    padding: isMobile ? "0.5lh 1ch" : "1lh 2ch",
+    padding: "0.5lh 1ch",
     width: "100%",
     boxSizing: "border-box" as const,
     position: isMobile ? 'fixed' as const : 'static' as const,
@@ -356,7 +356,7 @@ export default function Home() {
     right: isMobile ? 0 : undefined,
     bottom: isMobile ? 0 : undefined,
     zIndex: 100,
-    fontSize: isMobile ? '0.9em' : undefined,
+    fontSize: '0.9em',
   }
 
   // Terminal input container style
@@ -640,10 +640,10 @@ export default function Home() {
                     resize: "none",
                     outline: "none",
                     fontFamily: "var(--font-family)",
-                    fontSize: isMobile ? "0.7lh" : "var(--font-size)",
+                    fontSize: "0.7lh",
                     width: "100%",
                     maxWidth: "100%",
-                    boxSizing: "border-box",
+                    boxSizing: "border-box"
                   }}
                   onKeyDown={(e) => {
                     if (e.key === "Enter" && !e.shiftKey) {
@@ -655,14 +655,13 @@ export default function Home() {
                 />
               </div>
               <button 
-                is-="button" 
-                variant-="blue" 
+                is-="button"
+                variant-="blue"
                 size-="medium"
-                type="submit" 
+                type="submit"
                 disabled={status === "streaming" || status === "submitted" || !input.trim()}
                 className="exec-btn"
-                style={{ paddingLeft: '1ch',paddingRight: '1ch', display: 'flex', alignItems: 'center',
-                }}
+                style={{ paddingLeft: '1.25ch', paddingTop: '2ch', paddingBottom:'2ch', paddingRight: '1.25ch', display: 'flex', alignItems: 'center' }}
               >
                 [󰿄] SEND
               </button>
