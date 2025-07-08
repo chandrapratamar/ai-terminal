@@ -2,19 +2,13 @@
 @import "@webtui/plugin-nf";
 
 .exec-btn {
-  font-size: clamp(9px, 1vw, 15px);
+  font-size: clamp(0.7lh, 0.7lh, 0.7lh);
   margin-left: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   box-sizing: border-box;
-  padding: 0.5rem 1rem;
+  padding: 0.25lh 0.5ch;
   width: auto;
   max-width: 100%;
-}
-
-@media (max-width: 600px) {
-  .exec-btn {
-    width: 100%;
-  }
 } 

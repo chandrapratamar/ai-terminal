@@ -90,10 +90,9 @@ export function TerminalSidebar({
   }
 
   const emptyStateStyle = {
-    padding: "2lh 1ch",
     textAlign: "center" as const,
     color: "var(--foreground2)",
-    fontSize: "11px",
+    fontSize: "0.7lh",
   }
 
   // Backdrop style
@@ -162,7 +161,7 @@ export function TerminalSidebar({
                   color: currentSessionId === session.id ? "var(--foreground0)" : "var(--foreground1)",
                   display: "flex",
                   justifyContent: "space-between",
-                  alignItems: "center",
+                  alignItems: "flex-start",
                   borderLeft: currentSessionId === session.id ? "2px solid var(--foreground1)" : "none",
                 }}
                 onClick={() => handleLoadSession(session.id)}
@@ -185,6 +184,7 @@ export function TerminalSidebar({
                     onDeleteSession(session.id)
                   }}
                   title="Delete session"
+                  style={{ alignSelf: "flex-start" }}
                 >
                   󱐑
                 </button>

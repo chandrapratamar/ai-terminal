@@ -47,14 +47,14 @@ export function TerminalMessage({ message, streaming }: TerminalMessageProps) {
     display: "flex",
     alignItems: "center",
     gap: "1ch",
-    fontSize: "11px",
+    fontSize: "0.7ch",
     color: message.role === "user" ? "var(--foreground2)" : "var(--foreground1)",
   }
 
   const contentStyle = {
     padding: "1lh 2ch",
     whiteSpace: "pre-wrap" as const,
-    fontSize: "13px",
+    fontSize: "0.7ch",
     lineHeight: "1.5",
     overflowX: "auto" as const,
   }
@@ -62,12 +62,12 @@ export function TerminalMessage({ message, streaming }: TerminalMessageProps) {
   return (
     <div box-="inset" style={messageContainerStyle}>
       <div style={headerStyle}>
-        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "11px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "1ch", fontSize: "1.2ch" }}>
           <span is-="badge" variant-={message.role === "user" ? "foreground2" : "foreground1"}>{message.role === "user" ? "user@aiterminal" : "assistant@aiterminal"}</span>
           <span>~</span>
           <span>{new Date().toLocaleTimeString("en-US", { hour12: false })}</span>
         </div>
-        <div style={{ display: "flex", gap: "0.5rem" }}>
+        <div style={{ display: "flex", gap: "1ch" }}>
           <button 
             is-="button" 
             size-="small" 
@@ -81,7 +81,7 @@ export function TerminalMessage({ message, streaming }: TerminalMessageProps) {
       </div>
       <div 
         className="prose"
-        style={{ padding: "1rem", fontSize: "13px", lineHeight: "1.5", overflowX: "auto" }}
+        style={{ padding: "2ch", fontSize: "0.7ch", lineHeight: "1.5", overflowX: "auto" }}
       >
         <ReactMarkdown>{message.content}</ReactMarkdown>
         {streaming && message.role === "assistant" && (
@@ -92,8 +92,8 @@ export function TerminalMessage({ message, streaming }: TerminalMessageProps) {
             animation: 'blink 1s steps(1) infinite',
             color: 'var(--foreground1)',
             fontWeight: 'bold',
-            fontSize: '16px',
-            marginLeft: '2px',
+            fontSize: '1ch',
+            marginLeft: '0.2ch',
             verticalAlign: 'middle',
           }}>
             |

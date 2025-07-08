@@ -60,6 +60,13 @@ export default function Home() {
   // Track if we need to trigger handleSubmit for a new session
   const [pendingFirstSubmit, setPendingFirstSubmit] = useState(false);
 
+  const [isMobile, setIsMobile] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setIsMobile(window.innerWidth <= 600);
+    setMounted(true);
+  }, []);
+
   // Model options by provider
   const modelOptions: Record<string, string[]> = {
     openai: [
@@ -271,7 +278,6 @@ export default function Home() {
   const containerStyle = {
     display: "flex",
     minHeight: "100vh",
-    overflow: "hidden",
     backgroundColor: "var(--background0)",
     fontFamily: "var(--font-family, monospace)",
     fontSize: "var(--font-size, 16px)",
@@ -293,14 +299,15 @@ export default function Home() {
     width: "100vw",
     margin: "0",
     boxSizing: "border-box" as const,
+    overflowY: typeof window !== 'undefined' && window.innerWidth <= 600 ? 'auto' as const : undefined,
   }
 
   // Terminal header style
   const headerStyle = {
     backgroundColor: "var(--background1)",
     borderBottom: "1px solid var(--background2)",
-    padding: "1lh 2ch 1lh 2ch",
-    minHeight: "2lh",
+    padding: "0.5lh 1ch 0.5lh 1ch",
+    minHeight: "1.2lh",
   }
 
   // Title bar style
@@ -308,10 +315,10 @@ export default function Home() {
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    padding: "1lh 2ch",
+    padding: "0.5lh 1ch",
     backgroundColor: "var(--background2)",
     borderBottom: "1px solid var(--background1)",
-    minHeight: "2lh",
+    minHeight: "1.2lh",
   }
 
   // Menu bar style
@@ -319,11 +326,11 @@ export default function Home() {
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    padding: "1lh 2ch",
+    padding: "0.5lh 1ch",
     backgroundColor: "var(--background1)",
     borderBottom: "1px solid var(--background2)",
-    fontSize: "1em",
-    minHeight: "2lh",
+    fontSize: "0.95em",
+    minHeight: "1.2lh",
   }
 
   // Terminal output style
@@ -334,15 +341,22 @@ export default function Home() {
     boxSizing: "border-box" as const,
     fontFamily: "inherit",
     fontSize: "inherit",
+    paddingBottom: isMobile ? '7lh' : undefined,
   }
 
   // Terminal input area style
   const inputAreaStyle = {
     borderTop: "1px solid var(--background2)",
     backgroundColor: "var(--background1)",
-    padding: "1lh 2ch",
+    padding: isMobile ? "0.5lh 1ch" : "1lh 2ch",
     width: "100%",
     boxSizing: "border-box" as const,
+    position: isMobile ? 'fixed' as const : 'static' as const,
+    left: isMobile ? 0 : undefined,
+    right: isMobile ? 0 : undefined,
+    bottom: isMobile ? 0 : undefined,
+    zIndex: 100,
+    fontSize: isMobile ? '0.9em' : undefined,
   }
 
   // Terminal input container style
@@ -351,7 +365,7 @@ export default function Home() {
     gap: "1ch",
     backgroundColor: "var(--background0)",
     border: "1px solid var(--background2)",
-    padding: "1lh 2ch",
+    padding: isMobile ? "0.5lh 1ch" : "1lh 2ch",
     width: "100%",
     boxSizing: "border-box" as const,
     alignItems: "center",
@@ -389,8 +403,17 @@ export default function Home() {
     maxWidth: "60ch",
   }
 
-  // Add this near other style logic
-  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 600;
+  // Helper function to shorten model names for display
+  function getShortModelName(model: string) {
+    // Remove trailing version/date or extra dashes
+    // e.g., 'claude-3-opus-20240229' => 'claude-3-opus'
+    // e.g., 'gpt-4o-mini' => 'gpt-4o-mini'
+    // e.g., 'claude-3-sonnet-20240620' => 'claude-3-sonnet'
+    return model.replace(/(-\d{6,}|-\d{8,})$/, '').replace(/(-\d{6,}|-\d{8,})$/, '');
+  }
+
+  // Only render after mount to avoid hydration mismatch
+  if (!mounted) return null;
 
   return (
     <div style={containerStyle}>
@@ -415,29 +438,29 @@ export default function Home() {
               <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
                 <div style={{ display: "flex", gap: "0.25rem" }}>
                   <div style={{ 
-                    width: "12px", 
-                    height: "12px", 
+                    width: "1lh", 
+                    height: "1lh", 
                     borderRadius: "50%", 
                     backgroundColor: "var(--red)",
                     border: "1px solid var(--background3)",
                   }}></div>
                   <div style={{ 
-                    width: "12px", 
-                    height: "12px", 
+                    width: "1lh", 
+                    height: "1lh", 
                     borderRadius: "50%", 
                     backgroundColor: "var(--yellow)",
                     border: "1px solid var(--background3)",
                   }}></div>
                   <div style={{ 
-                    width: "12px", 
-                    height: "12px", 
+                    width: "1lh", 
+                    height: "1lh", 
                     borderRadius: "50%", 
                     backgroundColor: "var(--green)",
                     border: "1px solid var(--background3)",
                   }}></div>
                 </div>
                 <h1 style={{ 
-                  fontSize: "12px", 
+                  fontSize: "0.7lh", 
                   margin: 0, 
                   fontWeight: "normal",
                   display: "flex",
@@ -450,11 +473,12 @@ export default function Home() {
             </div>
 
             <div style={menuBarStyle}>
-              <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.25lh" }}>
                 <button 
                   is-="button" 
                   size-="small"
                   onClick={() => setSidebarOpen(!sidebarOpen)}
+                  style={{ fontSize: "0.6lh", padding: "0.1lh 0.2lh" }}
                 >
                    Sessions
                 </button>
@@ -462,6 +486,7 @@ export default function Home() {
                   is-="button" 
                   size-="small"
                   onClick={createNewSession}
+                  style={{ fontSize: "0.6lh", padding: "0.1lh 0.2lh" }}
                 >
                   󱐏 New
                 </button>
@@ -469,6 +494,7 @@ export default function Home() {
                   is-="button" 
                   size-="small"
                   onClick={() => setSettingsOpen(true)}
+                  style={{ fontSize: "0.6lh", padding: "0.1lh 0.2lh" }}
                 >
                   &#xe690; Settings
                 </button>
@@ -476,10 +502,10 @@ export default function Home() {
               <div style={{ 
                 display: "flex", 
                 alignItems: "center", 
-                gap: "0.5rem",
+                gap: "0.25lh",
                 backgroundColor: "var(--background2)",
-                padding: "0.25rem 0.5rem",
-                fontSize: "10px",
+                padding: "0.1lh 0.2lh",
+                fontSize: "0.6lh",
               }}>
                 
                 <span style={{ 
@@ -489,7 +515,7 @@ export default function Home() {
                   {settings.provider}
                 </span>
                 <span>|</span>
-                  <span>{settings.model}</span>
+                  <span>{getShortModelName(settings.model)}</span>
               </div>
             </div>
           </div>
@@ -498,14 +524,14 @@ export default function Home() {
           <div style={outputStyle}>
             {apiKeyRequired ? (
               <div style={emptyStateStyle}>
-                <div box-="inset" style={{ padding: "2rem", maxWidth: "500px" }}>
+                <div box-="inset" style={{ padding: "1lh", maxWidth: "20ch" }}>
                   <h2>API Key Required</h2>
                   <p>Please set your {settings.provider} API key in the settings to continue.</p>
                   <button 
                     is-="button" 
                     variant-="blue"
                     onClick={() => setSettingsOpen(true)}
-                    style={{ marginTop: "1rem" }}
+                    style={{ marginTop: "1lh", fontSize: "0.7lh" }}
                   >
                     Open Settings
                   </button>
@@ -517,8 +543,8 @@ export default function Home() {
                   fontFamily: "monospace",
                   whiteSpace: "pre",
                   color: "var(--blue)",
-                  marginBottom: "1rem",
-                  fontSize: "clamp(8px, 2vw, 16px)",
+                  marginBottom: "0.5lh",
+                  fontSize: "clamp(0.7lh, 0.7lh, 0.7lh)",
                   lineHeight: 1,
                 }}>
 {`
@@ -527,15 +553,17 @@ export default function Home() {
 ╰──────────────╯
 `}
                 </div>
-                <h1>Welcome to AI Terminal</h1>
-                <p>Start a conversation with an AI assistant using your API keys.</p>
+                <h1 style={{ fontSize: "0.7lh" }}>Welcome to AI Terminal</h1>
+                <p style={{ fontSize: "0.7lh" }}>Start a conversation with an AI assistant using your API keys.</p>
                 
                 <div style={quickCommandsStyle}>
                   <div box-="square" style={{ 
-                    padding: "0.75rem", 
+                    padding: "1.1ch", 
                     cursor: "pointer",
-                    backgroundColor: "var(--background1)",
-                    border: "1px solid var(--background2)",
+                    backgroundColor: "var(--background2)",
+                    border: "0.05ch solid var(--background3)",
+                    color: "var(--foreground0)",
+                    fontWeight: "bold",
                   }} onClick={() => {
                     const event = {
                       target: { value: "What are the best practices for creating accessible web applications?" }
@@ -547,10 +575,12 @@ export default function Home() {
                   </div>
                   
                   <div box-="square" style={{ 
-                    padding: "0.75rem", 
+                    padding: "1.1ch", 
                     cursor: "pointer",
-                    backgroundColor: "var(--background1)",
-                    border: "1px solid var(--background2)",
+                    backgroundColor: "var(--background2)",
+                    border: "0.05ch solid var(--background3)",
+                    color: "var(--foreground0)",
+                    fontWeight: "bold",
                   }} onClick={() => {
                     const event = {
                       target: { value: "Explain the differences between REST and GraphQL APIs." }
@@ -562,10 +592,12 @@ export default function Home() {
                   </div>
                   
                   <div box-="square" style={{ 
-                    padding: "0.75rem", 
+                    padding: "1.1ch", 
                     cursor: "pointer",
-                    backgroundColor: "var(--background1)",
-                    border: "1px solid var(--background2)",
+                    backgroundColor: "var(--background2)",
+                    border: "0.05ch solid var(--background3)",
+                    color: "var(--foreground0)",
+                    fontWeight: "bold",
                   }} onClick={() => {
                     const event = {
                       target: { value: "What are some strategies for optimizing website performance?" }
@@ -609,10 +641,10 @@ export default function Home() {
                     background: "transparent",
                     color: "var(--foreground0)",
                     resize: "none",
-                    height: "40px",
+                    height: isMobile ? "28px" : "40px",
                     outline: "none",
                     fontFamily: "var(--font-family)",
-                    fontSize: "var(--font-size)",
+                    fontSize: isMobile ? "0.7lh" : "var(--font-size)",
                     width: "100%",
                     maxWidth: "100%",
                     boxSizing: "border-box"

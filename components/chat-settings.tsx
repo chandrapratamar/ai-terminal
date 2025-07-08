@@ -28,7 +28,7 @@ interface ChatSettingsProps {
 function PopoverSelector({ label, options, value, onSelect }: { label: string, options: string[], value: string, onSelect: (v: string) => void }) {
   const popoverRef = useRef<HTMLDetailsElement>(null);
   return (
-    <details is-="popover" position-="center" ref={popoverRef} style={{ width: "100%" }}>
+    <details is-="popover" position-="center" ref={popoverRef} style={{ width: "100%", zIndex: 2000 }}>
       <summary
         is-="button"
         variant-="background1"
@@ -39,22 +39,21 @@ function PopoverSelector({ label, options, value, onSelect }: { label: string, o
           alignItems: "center",
           justifyContent: "space-between",
           cursor: "pointer",
-          padding: "0.5rem 1rem",
+          padding: "0.5lh 1ch",
           border: "none",
-          fontWeight: 500,
-          fontSize: "1rem",
-          borderRadius: "4px",
+          fontSize: "0.7lh",
+          borderRadius: "0",
           transition: "background 0.15s",
         }}
       >
         <span style={{ color: "var(--blue)" }}>{value}</span>
-        <span style={{ marginLeft: "auto", fontSize: "0.9em", color: "var(--foreground2)" }}>▼</span>
+        <span style={{ marginLeft: "auto", fontSize: "0.7lh", color: "var(--foreground2)" }}>▼</span>
       </summary>
-      <div style={{ minWidth: "160px", background: "var(--background1)", borderRadius: "4px", boxShadow: "0 2px 8px rgba(0,0,0,0.1)" }}>
+      <div style={{ minWidth: "20ch", background: "var(--background1)", borderRadius: "0", boxShadow: "none", zIndex: 2000, position: "relative", padding: "0.5lh 1ch" }}>
         {options.map(option => (
           <div
             key={option}
-            style={{ cursor: "pointer", padding: "0.5rem 1rem", background: option === value ? "var(--background2)" : "none" }}
+            style={{ cursor: "pointer", padding: "0.5lh 1ch", background: option === value ? "var(--background2)" : "none", fontSize: "0.7lh" }}
             onClick={() => {
               onSelect(option);
               popoverRef.current?.removeAttribute("open");
@@ -182,39 +181,39 @@ export function ChatSettings({ settings, onSettingsChange, onClose, modelOptions
 
   // Settings section style
   const sectionStyle = {
-    marginBottom: "2lh",
+    marginBottom: "0.5lh",
   }
 
   // Section header style
   const sectionHeaderStyle = {
-    fontSize: "1lh",
-    marginBottom: "1lh",
+    fontSize: "0.8lh",
+    marginBottom: "0.5lh",
     color: "var(--foreground0)",
   }
 
   // Provider buttons container style
   const providerButtonsStyle = {
     display: "flex",
-    gap: "1ch",
-    marginBottom: "1lh",
+    gap: "0.25ch",
+    marginBottom: "0.5lh",
   }
 
   // Form group style
   const formGroupStyle = {
-    marginBottom: "1rem",
+    marginBottom: "0.25lh",
   }
 
   // Label style
   const labelStyle = {
     display: "block",
-    marginBottom: "0.5rem",
+    marginBottom: "0.05lh",
     color: "var(--foreground1)",
   }
 
   // Input style
   const inputStyle = {
     backgroundColor: "var(--background1)",
-    padding: "0.5rem",
+    padding: "0.1lh",
     width: "100%",
     color: "var(--foreground0)",
     fontFamily: "var(--font-family)",
@@ -224,7 +223,7 @@ export function ChatSettings({ settings, onSettingsChange, onClose, modelOptions
   // Select style
   const selectStyle = {
     ...inputStyle,
-    height: "36px",
+    height: "1lh",
   }
 
   // API key input container style
@@ -232,20 +231,20 @@ export function ChatSettings({ settings, onSettingsChange, onClose, modelOptions
     border: "1px solid var(--background3)",
     borderRadius: "0px",
     backgroundColor: "var(--background0)",
-    marginTop: "1.5lh",
-    marginBottom: "2lh",
+    marginTop: "1lh",
+    marginBottom: "1lh",
     position: "relative" as const,
-    padding: "1.5rem 1rem 1rem 1rem",
+    padding: "1lh 1ch 1lh 1ch",
   }
 
   // API key label style (to bisect the top border)
   const apiKeyLabelStyle = {
     position: "absolute" as const,
-    top: "-0.9rem",
-    left: "1rem",
+    top: "-0.5lh",
+    left: "0.5ch",
     background: "var(--background0)",
-    padding: "0 0.5ch",
-    fontSize: "1lh",
+    padding: "0 0.25ch",
+    fontSize: "0.7lh",
     color: "var(--foreground1)",
     zIndex: 2,
     fontWeight: "bold" as const,
@@ -254,10 +253,10 @@ export function ChatSettings({ settings, onSettingsChange, onClose, modelOptions
 
   // API key note style
   const apiKeyNoteStyle = {
-    fontSize: "12px",
+    fontSize: "0.5lh",
     color: "var(--foreground2)",
-    marginBottom: "1rem",
-    padding: "0.5rem",
+    marginBottom: "1.5lh",
+    padding: "0.5lh",
     backgroundColor: "var(--background1)",
     borderLeft: "3px solid var(--yellow)",
   }
@@ -266,9 +265,9 @@ export function ChatSettings({ settings, onSettingsChange, onClose, modelOptions
   const buttonContainerStyle = {
     display: "flex",
     justifyContent: "flex-end",
-    gap: "0.5rem",
-    marginTop: "0.5rem",
-    padding: "0.5rem",
+    gap: "0.1lh",
+    marginTop: "0.1lh",
+    padding: "0.1lh",
     borderTop: "1px solid var(--background2)",
     backgroundColor: "var(--background1)",
   }
@@ -294,7 +293,7 @@ export function ChatSettings({ settings, onSettingsChange, onClose, modelOptions
     <div style={overlayStyle} onClick={handleClose}>
       <div style={sidebarStyle} onClick={(e) => e.stopPropagation()}>
         <div style={headerStyle}>
-          <h2 style={{ margin: 0, fontSize: "12px" }}>┌─[ Terminal Settings ]─</h2>
+          <h2 style={{ margin: 0, fontSize: "0.7lh" }}>┌─[ Terminal Settings ]─</h2>
           <button 
             is-="button" 
             size-="small"
@@ -362,7 +361,7 @@ export function ChatSettings({ settings, onSettingsChange, onClose, modelOptions
                 <span style={apiKeyLabelStyle}>
                   {provider.charAt(0).toUpperCase() + provider.slice(1)} API Key
                 </span>
-                <div style={{ display: "flex", gap: "0.1rem" }}>
+                <div style={{ display: "flex", gap: "0.02lh" }}>
                   <input
                     type={showApiKeys[provider] ? "text" : "password"}
                     is-="input"
@@ -376,8 +375,9 @@ export function ChatSettings({ settings, onSettingsChange, onClose, modelOptions
                     size-="small"
                     type="button"
                     onClick={() => toggleApiKeyVisibility(provider)}
+                    style={{ minWidth: "9ch", padding: "0.2lh 1ch", fontSize: "0.7lh" }}
                   >
-                    {showApiKeys[provider] ? "󰈉" : "󰈈"}
+                    {showApiKeys[provider] ? "󰈉 Hide" : "󰈈 Show"}
                   </button>
                 </div>
               </div>
@@ -389,7 +389,7 @@ export function ChatSettings({ settings, onSettingsChange, onClose, modelOptions
           <button 
             is-="button"
             onClick={handleClose}
-            style={{marginRight: "0.5rem"}}
+            style={{marginRight: "0.25lh"}}
           >
             󰜺 CANCEL
           </button>
