@@ -39,7 +39,7 @@ export default function Home() {
   // State
   const [sessions, setSessions] = useState<ChatSession[]>([])
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null)
-  const [sidebarOpen, setSidebarOpen] = useState(true)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [apiKeyRequired, setApiKeyRequired] = useState(false)
   const [settings, setSettings] = useState<Settings>({
@@ -456,21 +456,21 @@ export default function Home() {
                   size-="small"
                   onClick={() => setSidebarOpen(!sidebarOpen)}
                 >
-                  {sidebarOpen ? "Hide" : ""}
+                   Sessions
                 </button>
                 <button 
                   is-="button" 
                   size-="small"
                   onClick={createNewSession}
                 >
-                  󱐏
+                  󱐏 New
                 </button>
                 <button 
                   is-="button" 
                   size-="small"
                   onClick={() => setSettingsOpen(true)}
                 >
-                  &#xe690;
+                  &#xe690; Settings
                 </button>
               </div>
               <div style={{ 
@@ -597,7 +597,6 @@ export default function Home() {
               suppressHydrationWarning={true}
             >
               <div style={inputContainerStyle}>
-                <div style={promptStyle}>user@webtui:~$</div>
                 <textarea
                   ref={inputRef}
                   value={input}
@@ -633,7 +632,7 @@ export default function Home() {
                   disabled={status === "streaming" || status === "submitted" || !input.trim()}
                   className="exec-btn"
                 >
-                  [󰿄]
+                  [󰿄 SEND]
                 </button>
               </div>
             </form>

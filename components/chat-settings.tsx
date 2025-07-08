@@ -214,12 +214,11 @@ export function ChatSettings({ settings, onSettingsChange, onClose, modelOptions
   // Input style
   const inputStyle = {
     backgroundColor: "var(--background1)",
-    border: "1px solid var(--background2)",
-    borderRadius: "4px",
     padding: "0.5rem",
     width: "100%",
     color: "var(--foreground0)",
     fontFamily: "var(--font-family)",
+    outline: "none",
   }
 
   // Select style
@@ -229,9 +228,28 @@ export function ChatSettings({ settings, onSettingsChange, onClose, modelOptions
   }
 
   // API key input container style
-  const apiKeyInputStyle = {
-    display: "flex",
-    gap: "0.5rem",
+  const apiKeyInputContainerStyle = {
+    border: "1px solid var(--background3)",
+    borderRadius: "0px",
+    backgroundColor: "var(--background0)",
+    marginTop: "1.5lh",
+    marginBottom: "2lh",
+    position: "relative" as const,
+    padding: "1.5rem 1rem 1rem 1rem",
+  }
+
+  // API key label style (to bisect the top border)
+  const apiKeyLabelStyle = {
+    position: "absolute" as const,
+    top: "-0.9rem",
+    left: "1rem",
+    background: "var(--background0)",
+    padding: "0 0.5ch",
+    fontSize: "1lh",
+    color: "var(--foreground1)",
+    zIndex: 2,
+    fontWeight: "bold" as const,
+    letterSpacing: "0.02em",
   }
 
   // API key note style
@@ -340,12 +358,10 @@ export function ChatSettings({ settings, onSettingsChange, onClose, modelOptions
             </div>
 
             {(["openai", "anthropic", "deepseek"] as const).map((provider) => (
-              <label key={provider} box-="square" style={{ display: "block", marginBottom: "1rem" }}>
-                <div className="row" style={{ marginBottom: "0.1rem" }}>
-                  <span is-="badge" variant-="background0">
-                    {provider.charAt(0).toUpperCase() + provider.slice(1)} API Key
-                  </span>
-                </div>
+              <div key={provider} style={apiKeyInputContainerStyle}>
+                <span style={apiKeyLabelStyle}>
+                  {provider.charAt(0).toUpperCase() + provider.slice(1)} API Key
+                </span>
                 <div style={{ display: "flex", gap: "0.1rem" }}>
                   <input
                     type={showApiKeys[provider] ? "text" : "password"}
@@ -353,7 +369,7 @@ export function ChatSettings({ settings, onSettingsChange, onClose, modelOptions
                     value={tempSettings.apiKeys[provider]}
                     onChange={(e) => handleApiKeyChange(provider, e.target.value)}
                     placeholder={`Enter your ${provider} API key...`}
-                    style={{ flex: 1 }}
+                    style={inputStyle}
                   />
                   <button
                     is-="button"
@@ -364,7 +380,7 @@ export function ChatSettings({ settings, onSettingsChange, onClose, modelOptions
                     {showApiKeys[provider] ? "󰈉" : "󰈈"}
                   </button>
                 </div>
-              </label>
+              </div>
             ))}
           </div>
         </div>
@@ -375,14 +391,14 @@ export function ChatSettings({ settings, onSettingsChange, onClose, modelOptions
             onClick={handleClose}
             style={{marginRight: "0.5rem"}}
           >
-            󰜺
+            󰜺 CANCEL
           </button>
           <button 
             is-="button" 
             variant-="blue"
             onClick={handleSave}
           >
-           
+            SAVE
           </button>
         </div>
       </div>
