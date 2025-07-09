@@ -54,6 +54,7 @@ export default function Home() {
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const { theme } = useTheme()
 
@@ -80,7 +81,6 @@ export default function Home() {
     ],
     anthropic: [
       "claude-3-opus-20240229", 
-      "claude-3-sonnet-20240229", 
       "claude-3-haiku-20240307",
       "claude-3-5-sonnet-20240620",
       "claude-3-5-sonnet-20241022",
@@ -96,7 +96,7 @@ export default function Home() {
   }
 
   // Chat hook
-  const { messages: chatMessages, input, handleInputChange, handleSubmit, status } = useChat({
+  const { messages: chatMessages, input, handleInputChange, handleSubmit, status, error } = useChat({
     api: "/api/chat",
     body: {
       model: settings.model,
@@ -106,8 +106,22 @@ export default function Home() {
     onResponse: (response) => {
       if (response.status === 401) {
         setApiKeyRequired(true)
+        setErrorMessage("API key is required. Please enter your API key in settings.");
         return
       }
+      if (response.status === 400) {
+        setErrorMessage("Invalid API key. Please check your key in settings.");
+        return;
+      }
+      if (response.status === 429) {
+        setErrorMessage("Quota exceeded. Please check your plan or API usage.");
+        return;
+      }
+      setErrorMessage(null);
+    },
+    onError: (err) => {
+      // fallback for any other error
+      setErrorMessage(err?.message || "An error occurred. Please try again.");
     },
     onFinish: (message) => {
       if (!currentSessionId) return
@@ -613,6 +627,37 @@ export default function Home() {
                     streaming={isStreaming && idx === displayMessages.length - 1 && message.role === "assistant"}
                   />
                 ))}
+                {errorMessage && (
+                  <div
+                    style={{
+                      background: "var(--background2)",
+                      color: "var(--red, #ff5555)",
+                      border: "1px solid var(--red, #ff5555)",
+                      padding: "1lh 2ch",
+                      margin: "1lh 0",
+                      fontFamily: 'JetBrains Mono, monospace',
+                      fontSize: '0.9em',
+                      borderRadius: 4,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '1ch',
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+                    }}
+                    role="alert"
+                  >
+                    <span style={{fontWeight: 'bold', fontSize: '1.2em'}}>[ERROR]</span>
+                    <span>{errorMessage}</span>
+                    <button
+                      is-="button"
+                      size-="small"
+                      style={{ marginLeft: 'auto', color: 'var(--red, #ff5555)', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 'bold' }}
+                      onClick={() => setErrorMessage(null)}
+                      title="Dismiss error"
+                    >
+                      [X]
+                    </button>
+                  </div>
+                )}
                 <div ref={messagesEndRef} />
               </>
             )}
